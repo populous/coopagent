@@ -65,6 +65,7 @@ PowerShell 은 `.ps1`, cmd 는 `.cmd` 를 쓴다.
 
 ```powershell
 .\ragproposal.ps1 --task "RAG 시스템 구축 요청" --out docs   # 인터뷰 → 계약 합성 → 멀티 에이전트 제안/비판 → YAML
+.\ragproposal.ps1 --task "..." --fresh                      # 이전 기록 무시하고 새로 시작
 ```
 
 ### 3.3 공통 옵션
@@ -74,6 +75,7 @@ PowerShell 은 `.ps1`, cmd 는 `.cmd` 를 쓴다.
 | `--task TASK` | 입력 요청. **생략하면 대화형으로 입력받는다** |
 | `--k N` | 생성할 페르소나 수 (기본 5) |
 | `--out DIR` | `ragproposal` 전용: 결과 저장 디렉터리 (기본 `docs`) |
+| `--fresh` | `ragproposal` 전용: 이전 기록(`rag_state.json`)을 무시하고 새로 시작 |
 | `-h` / `--help` | 도움말 |
 
 ---
@@ -94,7 +96,9 @@ coopagent/
 │   │   ├── syntax.py            # YAML 직렬화 백엔드
 │   │   ├── contract_synthesis.py# ContractSynthesizer + 에이전트 공통 헬퍼
 │   │   ├── evolution.py         # 병합/충돌/불변조건 검증 + 진화 로그
-│   │   ├── rag_proposal.py      # RAG 계약 제안 드라이버
+│   │   ├── rag_proposal.py      # RAG 계약 제안 드라이버 (상태 저장/복원 포함)
+│   │   ├── mcp_server.py        # MCP 서버 (OpenCode/Cline 노출)
+│   │   ├── mcp_registry.py      # MCP 등록 유틸 (--mcp-*)
 │   │   └── cli.py               # documentagent CLI
 │   ├── agents/                  # 역할 에이전트
 │   │   ├── base.py              # AgentContext, BaseAgent(Protocol)
@@ -112,6 +116,7 @@ coopagent/
 ├── setup.ps1                    # 원클릭 셋업
 ├── documentagent.ps1 / .cmd     # 런처
 ├── ragproposal.ps1 / .cmd       # 런처
+├── coopagent-mcp.ps1 / .cmd     # MCP 서버 런처
 ├── CMakeLists.txt               # CTest/CPack 래핑
 ├── pyproject.toml               # Poetry 메타데이터 + 스크립트
 ├── requirements.txt             # 런타임 의존성
@@ -131,6 +136,10 @@ coopagent/
 5. **진화 로그** — 계약의 추가/삭제/강화 이력을 반복별로 기록
 6. **YAML 직렬화** — 최종 계약 세트를 YAML 로 렌더링
 
+> **상태 연속성**: `docs/rag_state.json` 이 있으면 3단계의 시작 계약 세트를 새로
+> 합성한 baseline 대신 **이전 최종 계약**으로 두고, 그 위에서 에이전트가 다시
+> 제안/비판한다. 진화 로그도 이어서 누적된다. `--fresh` 로 무시할 수 있다.
+
 ---
 
 ## 6. 생성 산출물 (`docs/`)
@@ -140,6 +149,7 @@ coopagent/
 | `rag_proposal.requirements.md` | 페르소나 인터뷰로 생성된 요구사항 문서 |
 | `rag_proposal.generated.yaml` | 최종 인터페이스 계약 (YAML) |
 | `rag_proposal.summary.json` | 에이전트 비판·진화 로그·충돌/불변조건 검증 결과 |
+| `rag_state.json` | 상태 기록: 최종 계약 + 진화 로그 (다음 호출의 입력으로 재사용) |
 | `rag_proposal.md` | 실사례 vs 생성 계약 비교·분석 문서 |
 
 ---
@@ -147,7 +157,7 @@ coopagent/
 ## 7. 테스트
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest test -q                    # pytest (40 tests)
+.\.venv\Scripts\python.exe -m pytest test -q                    # pytest (50 tests)
 cmake -S . -B build                                              # CMake 구성
 ctest --test-dir build -C Release --output-on-failure            # CTest 래핑
 cmake --build build --target package --config Release            # CPack 패키징(ZIP/TGZ)
