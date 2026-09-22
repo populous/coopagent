@@ -7,17 +7,21 @@ from .evaluation import InformationEvaluator
 from .interview import InterviewConductor
 from .models import EvaluationResult, InterviewResult, InterviewState, Personas
 from .persona import PersonaGenerator
+from .requirement_graph import RequirementGraphBuilder
 from .requirements import RequirementsDocumentGenerator
+from .syntax import render_requirement_mermaid
 
 
 class DocumentationAgent:
     """페르소나·인터뷰에 기반해 요구사항 정의서를 생성하는 워크플로 에이전트"""
 
-    def __init__(self, llm: ChatOpenAI, k: Optional[int] = None):
+    def __init__(self, llm: ChatOpenAI, k: Optional[int] = None, build_graph: bool = False):
         self.persona_generator = PersonaGenerator(llm=llm, k=k or 5)
         self.interview_conductor = InterviewConductor(llm=llm)
         self.information_evaluator = InformationEvaluator(llm=llm)
         self.requirements_generator = RequirementsDocumentGenerator(llm=llm)
+        self.build_graph = build_graph
+        self.requirement_graph_builder = RequirementGraphBuilder(llm=llm) if build_graph else None
         self.graph = self._create_graph()
 
     def _create_graph(self) -> StateGraph:
@@ -39,7 +43,12 @@ class DocumentationAgent:
             {True: "generate_personas", False: "generate_requirements"},
         )
 
-        workflow.add_edge("generate_requirements", END)
+        if self.build_graph:
+            workflow.add_node("build_requirement_graph", self._build_requirement_graph)
+            workflow.add_edge("generate_requirements", "build_requirement_graph")
+            workflow.add_edge("build_requirement_graph", END)
+        else:
+            workflow.add_edge("generate_requirements", END)
         return workflow.compile()
 
     def _generate_personas(self, state: InterviewState) -> dict[str, Any]:
@@ -69,6 +78,15 @@ class DocumentationAgent:
             state.user_request, state.interviews
         )
         return {"requirements_doc": requirements_doc}
+
+    def _build_requirement_graph(self, state: InterviewState) -> dict[str, Any]:
+        graph = self.requirement_graph_builder.run(
+            state.user_request, state.interviews
+        )
+        return {
+            "requirement_graph": graph,
+            "requirement_graph_mermaid": render_requirement_mermaid(graph),
+        }
 
     def run(self, user_request: str) -> str:
         initial_state = InterviewState(user_request=user_request)

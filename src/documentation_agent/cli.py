@@ -33,6 +33,11 @@ def main() -> None:
         default=5,
         help="생성할 페르소나 수를 설정해 주세요 (기본값: 5)",
     )
+    parser.add_argument(
+        "--graph",
+        action="store_true",
+        help="요구사항을 그래프로 구조화해 Mermaid 로 함께 출력·저장",
+    )
 
     mcp_group = parser.add_argument_group("MCP (Cline/OpenCode 연동) 설정")
     mcp_group.add_argument("--mcp-print", action="store_true",
@@ -73,9 +78,23 @@ def main() -> None:
         parser.error("--task 값 또는 대화형 입력이 필요합니다.")
 
     llm = ChatOpenAI(model="gpt-4o", temperature=0.0)
-    agent = DocumentationAgent(llm=llm, k=args.k)
-    final_output = agent.run(user_request=task)
-    print(final_output)
+    agent = DocumentationAgent(llm=llm, k=args.k, build_graph=args.graph)
+
+    if args.graph:
+        final_state = agent.run_full(task)
+        print(final_state["requirements_doc"])
+        mermaid = final_state["requirement_graph_mermaid"]
+        print("\n=== 요구사항 그래프 (Mermaid) ===\n")
+        print(mermaid)
+        out_dir = Path("docs")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "requirements_graph.md").write_text(
+            f"# 요구사항 그래프\n\n```mermaid\n{mermaid}\n```\n", encoding="utf-8"
+        )
+        print(f"\n저장: {out_dir / 'requirements_graph.md'}")
+    else:
+        final_output = agent.run(user_request=task)
+        print(final_output)
 
 
 if __name__ == "__main__":

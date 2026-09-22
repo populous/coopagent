@@ -59,7 +59,12 @@ PowerShell 은 `.ps1`, cmd 는 `.cmd` 를 쓴다.
 ```powershell
 .\documentagent.ps1 "만들고 싶은 시스템 설명"          # 페르소나 인터뷰 → 요구사항 문서
 .\documentagent.ps1 --task "..." --k 3                # 페르소나 수 지정
+.\documentagent.ps1 --task "..." --graph              # 요구사항을 그래프로 구조화 (Mermaid)
 ```
+
+`--graph` 를 붙이면 요구사항을 개별 노드(기능/비기능/제약/리스크)와 의존관계
+엣지로 구조화한 **요구사항 그래프**를 LangGraph 서브워크플로(`decompose → link →
+validate`)로 생성하고, Mermaid 로 렌더링해 `docs/requirements_graph.md` 에 저장한다.
 
 ### 3.2 RAG 계약 제안 생성 (`ragproposal`)
 
@@ -76,6 +81,7 @@ PowerShell 은 `.ps1`, cmd 는 `.cmd` 를 쓴다.
 | `--k N` | 생성할 페르소나 수 (기본 5) |
 | `--out DIR` | `ragproposal` 전용: 결과 저장 디렉터리 (기본 `docs`) |
 | `--fresh` | `ragproposal` 전용: 이전 기록(`rag_state.json`)을 무시하고 새로 시작 |
+| `--graph` | `documentagent` 전용: 요구사항을 그래프로 구조화해 Mermaid 로 출력·저장 |
 | `-h` / `--help` | 도움말 |
 
 ---
@@ -96,6 +102,7 @@ coopagent/
 │   │   ├── syntax.py            # YAML 직렬화 백엔드
 │   │   ├── contract_synthesis.py# ContractSynthesizer + 에이전트 공통 헬퍼
 │   │   ├── evolution.py         # 병합/충돌/불변조건 검증 + 진화 로그
+│   │   ├── requirement_graph.py # 요구사항 그래프 빌더 (LangGraph 서브워크플로)
 │   │   ├── rag_proposal.py      # RAG 계약 제안 드라이버 (상태 저장/복원 포함)
 │   │   ├── mcp_server.py        # MCP 서버 (OpenCode/Cline 노출)
 │   │   ├── mcp_registry.py      # MCP 등록 유틸 (--mcp-*)

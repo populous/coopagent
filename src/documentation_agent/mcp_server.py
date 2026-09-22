@@ -163,12 +163,15 @@ def tool_generate_requirements(args: dict) -> dict:
 
     try:
         llm = _make_llm()
-        doc = DocumentationAgent(llm=llm, k=k).run(task)
+        agent = DocumentationAgent(llm=llm, k=k, build_graph=True)
+        state = agent.run_full(task)
+        doc = state["requirements_doc"]
+        mermaid = state["requirement_graph_mermaid"]
     except Exception as exc:  # noqa: BLE001
         log(traceback.format_exc())
         return text_content(f"요구사항 문서 생성 실패: {exc}")
 
-    return text_content(doc)
+    return text_content(doc + "\n\n=== 요구사항 그래프 (Mermaid) ===\n\n" + mermaid)
 
 
 def tool_propose_rag_contracts(args: dict) -> dict:
