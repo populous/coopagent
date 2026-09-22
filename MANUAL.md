@@ -289,6 +289,8 @@ coopagent 를 OpenCode/Cline 의 TUI 에서 직접 호출할 수 있도록 MCP �
 | `list_generated_proposals` | 생성된 산출물 목록 | 읽기 |
 | `get_proposal_contracts` | 산출물 파일 내용 | 읽기 |
 
+> Cline/OpenCode 각각의 자세한 등록 절차·스키마 차이는 **[MCP_REGISTRATION.md](MCP_REGISTRATION.md)** 참고.
+
 ### 등록
 
 ```powershell

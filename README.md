@@ -6,6 +6,7 @@ LangGraph 기반의 페르소나-인터뷰 요구사항 생성 에이전트. 자
 
 > 자세한 내용은 **[MANUAL.md](MANUAL.md)** (사용 매뉴얼) 참고.
 > GitHub Codespaces 에서 실행하려면 **[CODESPACES.md](CODESPACES.md)** 참고.
+> Cline/OpenCode 에 MCP 서버로 등록하려면 **[MCP_REGISTRATION.md](MCP_REGISTRATION.md)** 참고.
 
 ## 빠른 시작
 
