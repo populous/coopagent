@@ -23,6 +23,35 @@ powershell -ExecutionPolicy Bypass -File .\setup.ps1        # 1) 원클릭 셋�
 
 두 명령 모두 `--task`를 생략하면 대화형으로 입력을 받는다.
 
+## 요구사항 그래프
+
+`documentagent --graph` 로 요구사항을 **노드(기능/비기능/제약/리스크) + 의존관계
+엣지**의 그래프로 구조화한다. 결과는 `docs/requirements_graph.md` 에 Mermaid 로
+저장되며, GitHub 에서 아래처럼 렌더링된다:
+
+```mermaid
+flowchart TD
+    classDef functional fill:#d5e8d4,stroke:#82b366
+    classDef non_functional fill:#dae8fc,stroke:#6c8ebf
+    classDef constraint fill:#fff2cc,stroke:#d6b656
+    classDef risk fill:#f8cecc,stroke:#b85450
+    FR-1["FR-1: Accurate Book Search"]:::functional
+    FR-2["FR-2: Personalized Recommendation"]:::functional
+    FR-3["FR-3: Shopping Cart"]:::functional
+    FR-4["FR-4: Ordering Process"]:::functional
+    NFR-1["NFR-1: Seamless User Experience"]:::non_functional
+    NFR-3["NFR-3: Fast Loading Times"]:::non_functional
+    CON-1["CON-1: Data Privacy Compliance"]:::constraint
+    RISK-1["RISK-1: Inaccurate Recommendations"]:::risk
+    FR-1 --> FR-2
+    FR-3 --> FR-4
+    FR-1 --> NFR-1
+    FR-4 --> NFR-1
+    FR-2 --> RISK-1
+```
+
+> 전체 생성 예시는 [docs/requirements_graph.md](docs/requirements_graph.md) 참고.
+
 ## 프로젝트 구조
 
 ```
