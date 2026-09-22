@@ -194,3 +194,36 @@ ctest --preset ci
 - `.env` 는 `.gitignore` 에 등록되어 git 에 커밋되지 않는다.
 - API 키는 코드에 하드코딩하지 않고 `load_dotenv()` 로만 읽는다.
 - 키가 외부에 노출된 적이 있다면 **키 회전(재발급)**을 권장한다.
+
+---
+
+## 10. MCP 서버로 노출 (OpenCode/Cline 연동)
+
+coopagent 를 OpenCode/Cline 의 TUI 에서 직접 호출할 수 있도록 MCP 서버를 제공한다.
+서버는 stdio 기반 JSON-RPC 로, 도구 4개를 노출한다.
+
+| 도구 | 설명 | 유형 |
+|---|---|---|
+| `generate_requirements` | 페르소나 인터뷰 → 요구사항 문서 | 읽기 (LLM) |
+| `propose_rag_contracts` | 계약 합성 → 멀티 에이전트 제안/비판 → YAML | **쓰기** (LLM) |
+| `list_generated_proposals` | 생성된 산출물 목록 | 읽기 |
+| `get_proposal_contracts` | 산출물 파일 내용 | 읽기 |
+
+### 등록
+
+```powershell
+.\documentagent.ps1 --mcp-print                          # 등록용 JSON 조각 출력
+.\documentagent.ps1 --mcp-install --mcp-target opencode  # OpenCode 자동 등록
+.\documentagent.ps1 --mcp-install --force                # Cline 덮어쓰기 등록
+.\documentagent.ps1 --mcp-status --mcp-target opencode   # 등록 확인
+```
+
+### 서버 직접 실행
+
+```powershell
+.\coopagent-mcp.ps1    # stdio MCP 서버 (OpenCode/Cline 이 자식 프로세스로 실행)
+```
+
+> 주의: `generate_requirements`/`propose_rag_contracts` 는 실제 OpenAI 과금이 발생하고
+> 수 분이 걸릴 수 있다. `propose_rag_contracts` 는 파일 쓰기 도구이므로
+> autoApprove(OpenCode 의 permission allow) 목록에 넣지 말 것.

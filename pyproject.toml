@@ -16,6 +16,7 @@ PyYAML = "*"
 [tool.poetry.scripts]
 documentagent = "documentation_agent.cli:main"
 ragproposal = "documentation_agent.rag_proposal:main"
+coopagent-mcp = "documentation_agent.mcp_server:serve"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
