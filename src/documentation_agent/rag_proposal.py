@@ -33,7 +33,7 @@ from .evolution import (
     validate_invariants,
 )
 from .models import Interview
-from .syntax import YamlWorkflowBackend, render_workflow_spec
+from .syntax import YamlWorkflowBackend, render_contract_mermaid, render_workflow_spec
 from .workflow import DocumentationAgent
 
 from agents.base import AgentContext
@@ -68,6 +68,7 @@ class RagProposalResult(BaseModel):
     conflicts: List[str] = Field(default_factory=list)
     invariant_issues: List[str] = Field(default_factory=list)
     yaml: str = ""
+    contracts_mermaid: str = ""
 
 
 def run_proposal(
@@ -117,8 +118,9 @@ def run_proposal(
     conflicts = detect_conflicts(working)
     invariant_issues = validate_invariants(working)
 
-    # 5) YAML 직렬화
+    # 5) YAML 직렬화 + 계약 그래프
     yaml_str = render_workflow_spec(working, YamlWorkflowBackend())
+    contracts_mermaid = render_contract_mermaid(working)
 
     return RagProposalResult(
         user_request=user_request,
@@ -131,6 +133,7 @@ def run_proposal(
         conflicts=conflicts,
         invariant_issues=invariant_issues,
         yaml=yaml_str,
+        contracts_mermaid=contracts_mermaid,
     )
 
 
@@ -142,6 +145,11 @@ def write_artifacts(result: RagProposalResult, out_dir: Path) -> None:
         result.requirements_doc, encoding="utf-8"
     )
     (out_dir / "rag_proposal.generated.yaml").write_text(result.yaml, encoding="utf-8")
+
+    (out_dir / "contracts_graph.md").write_text(
+        f"# 계약 그래프\n\n```mermaid\n{result.contracts_mermaid}\n```\n",
+        encoding="utf-8",
+    )
 
     summary = {
         "user_request": result.user_request,

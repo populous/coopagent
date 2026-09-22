@@ -40,6 +40,29 @@
 > 핵심: 2차 실행에서 iteration 6~10 이 **이어서 추가**되어 진화 로그가 5 → 10 으로
 > 누적된다. 즉 `existing_contracts`(이전 11개) 위에서 에이전트가 다시 제안/비판했다.
 
+## 계약 그래프 반영
+
+계약 집합은 `docs/contracts_graph.md` 에 Mermaid 그래프로도 저장된다. 노드는 계약
+(name+role, 역할별 색상), 엣지는 데이터 흐름(outputs ↔ inputs 토큰 겹침)이다.
+
+상태 연속성으로 인해 그래프에도 계약 진화가 반영된다:
+
+| 구분 | 그래프 노드 수 | 변화 |
+|---|---|---|
+| 1차 실행 | 11개 | — |
+| 2차 실행 | **14개** | 신규 3개 추가 |
+
+2차 실행에서 그래프에 추가된 노드:
+
+- `MMR Diversity Re-ranking` (Ranker)
+- `Provenance Tracking` (Orchestrator)
+- `Provenance and Diversity Enhanced Retrieval` (Orchestrator)
+
+```powershell
+# 계약 그래프 확인
+Get-Content docs\contracts_graph.md
+```
+
 ## 직접 확인
 
 ```powershell

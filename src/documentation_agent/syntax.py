@@ -1,3 +1,4 @@
+import re
 from typing import List, Protocol
 
 from .contracts import InterfaceContract
@@ -72,5 +73,72 @@ def render_requirement_mermaid(graph: RequirementGraph) -> str:
     for node in graph.nodes:
         for dep in node.depends_on:
             lines.append(f"    {dep} --> {node.id}")
+
+    return "\n".join(lines)
+
+
+_ROLE_CLASSES = {
+    "Retriever": "retriever",
+    "Ranker": "ranker",
+    "Orchestrator": "orchestrator",
+    "Evaluator": "evaluator",
+    "Logger": "logger",
+    "Optimizer": "optimizer",
+    "Visualizer": "visualizer",
+}
+
+_ROLE_COLORS = {
+    "retriever": "fill:#d5e8d4,stroke:#82b366",
+    "ranker": "fill:#dae8fc,stroke:#6c8ebf",
+    "orchestrator": "fill:#fff2cc,stroke:#d6b656",
+    "evaluator": "fill:#e1d5e7,stroke:#9673a6",
+    "logger": "fill:#f8cecc,stroke:#b85450",
+    "optimizer": "fill:#f5f5f5,stroke:#666666",
+    "visualizer": "fill:#ffe6cc,stroke:#d79b00",
+}
+
+
+def _slug(name: str) -> str:
+    """계약 이름을 Mermaid 노드 id 로 쓸 수 있는 안전한 식별자로 바꾼다."""
+    return re.sub(r"[^A-Za-z0-9]+", "_", name).strip("_") or "node"
+
+
+def _tokens(text: str) -> set:
+    """데이터 흐름 비교용 의미 토큰(2자 초과 영숫자 단어) 집합."""
+    return {w.lower() for w in re.findall(r"[A-Za-z0-9]+", text) if len(w) > 2}
+
+
+def render_contract_mermaid(contracts: List[InterfaceContract]) -> str:
+    """InterfaceContract 목록을 Mermaid 그래프로 렌더링한다.
+
+    노드는 계약(name+role, 역할별 색상), 엣지는 데이터 흐름(outputs 와 inputs 의
+    의미 토큰 겹침)이다.
+    """
+    lines = ["flowchart LR"]
+    for cls, color in _ROLE_COLORS.items():
+        lines.append(f"    classDef {cls} {color}")
+
+    for c in contracts:
+        node_id = _slug(c.name)
+        cls = _ROLE_CLASSES.get(c.role, "orchestrator")
+        label = f"{c.name}<br/>({c.role})"
+        safe_label = label.replace('"', "'")
+        lines.append(f'    {node_id}["{safe_label}"]:::{cls}')
+
+    # 데이터 흐름 엣지: A 의 outputs 와 B 의 inputs 가 의미적으로 겹치면 A -> B
+    for a in contracts:
+        a_out: set = set()
+        for o in a.outputs:
+            a_out |= _tokens(o)
+        if not a_out:
+            continue
+        for b in contracts:
+            if a.name == b.name:
+                continue
+            b_in: set = set()
+            for i in b.inputs:
+                b_in |= _tokens(i)
+            if a_out & b_in:
+                lines.append(f"    {_slug(a.name)} --> {_slug(b.name)}")
 
     return "\n".join(lines)

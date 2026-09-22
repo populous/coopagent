@@ -3,7 +3,11 @@
 import yaml
 
 from documentation_agent.contracts import InterfaceContract
-from documentation_agent.syntax import YamlWorkflowBackend, render_workflow_spec
+from documentation_agent.syntax import (
+    YamlWorkflowBackend,
+    render_contract_mermaid,
+    render_workflow_spec,
+)
 
 
 def _contracts():
@@ -34,3 +38,22 @@ def test_render_workflow_spec_delegates_to_backend():
             return "steps:" + ",".join(c.name for c in contracts)
 
     assert render_workflow_spec(_contracts(), FakeBackend()) == "steps:retrieve,rank"
+
+
+def test_render_contract_mermaid_nodes_and_dataflow():
+    mermaid = render_contract_mermaid(_contracts())
+    assert mermaid.startswith("flowchart LR")
+    assert "retrieve" in mermaid
+    assert "rank" in mermaid
+    # retrieve outputs "docs", rank inputs "docs" -> 데이터 흐름 엣지
+    assert "retrieve --> rank" in mermaid
+
+
+def test_render_contract_mermaid_no_edge_when_no_overlap():
+    contracts = [
+        InterfaceContract(name="a", role="Retriever", inputs=["x"], outputs=["y"]),
+        InterfaceContract(name="b", role="Ranker", inputs=["z"], outputs=["w"]),
+    ]
+    mermaid = render_contract_mermaid(contracts)
+    assert "a --> b" not in mermaid
+    assert "b --> a" not in mermaid
