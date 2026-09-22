@@ -35,8 +35,9 @@ from langchain_openai import ChatOpenAI  # noqa: E402
 
 from documentation_agent.rag_proposal import (  # noqa: E402
     load_state,
+    next_run_id,
     run_proposal,
-    save_state,
+    save_run,
     write_artifacts,
 )
 from documentation_agent.workflow import DocumentationAgent  # noqa: E402
@@ -185,11 +186,12 @@ def tool_propose_rag_contracts(args: dict) -> dict:
     try:
         llm = _make_llm()
         out_dir = PROJECT_DIR / out
+        run_id = next_run_id(out_dir)
         existing_contracts, prior_log = (None, None) if fresh else load_state(out_dir)
         result = run_proposal(task, llm, k=k,
                               existing_contracts=existing_contracts, prior_log=prior_log)
-        write_artifacts(result, out_dir)
-        save_state(result, out_dir)
+        write_artifacts(result, out_dir, run_id)
+        save_run(result, out_dir, run_id)
     except Exception as exc:  # noqa: BLE001
         log(traceback.format_exc())
         return text_content(f"계약 제안 생성 실패: {exc}")

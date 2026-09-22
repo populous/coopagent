@@ -14,6 +14,7 @@
 
 import argparse
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -112,7 +113,12 @@ def run_proposal(
         before = list(working)
         working = merge_contracts(working, proposals)
         changes = diff_contracts(before, working)
-        evolution_log.record(iteration, agent.role, changes)
+        evolution_log.record(
+            iteration, agent.name, changes,
+            role=agent.role,
+            proposals=[p.name for p in proposals],
+            critiques=agent_critiques,
+        )
 
     # 4) 판정 노드: 충돌/불변조건 검증
     conflicts = detect_conflicts(working)
@@ -137,68 +143,115 @@ def run_proposal(
     )
 
 
-def write_artifacts(result: RagProposalResult, out_dir: Path) -> None:
-    """결과물(요구사항 문서, YAML, 진화 로그, 요약 JSON)을 디렉터리에 저장한다."""
+def write_artifacts(result: RagProposalResult, out_dir: Path, run_id: int) -> Path:
+    """산출물(md/yaml/json)을 버전 디렉터리에 저장하고 최신(docs/)도 갱신한다."""
     out_dir.mkdir(parents=True, exist_ok=True)
-
-    (out_dir / "rag_proposal.requirements.md").write_text(
-        result.requirements_doc, encoding="utf-8"
-    )
-    (out_dir / "rag_proposal.generated.yaml").write_text(result.yaml, encoding="utf-8")
-
-    (out_dir / "contracts_graph.md").write_text(
-        f"# 계약 그래프\n\n```mermaid\n{result.contracts_mermaid}\n```\n",
-        encoding="utf-8",
-    )
+    version_dir = out_dir / VERSIONS_DIR / f"run_{run_id:03d}"
+    version_dir.mkdir(parents=True, exist_ok=True)
 
     summary = {
+        "run_id": run_id,
         "user_request": result.user_request,
         "critiques": result.critiques,
         "evolution_log": result.evolution_log.to_dicts(),
+        "evolution_degree_total": result.evolution_log.total_degree(),
         "conflicts": result.conflicts,
         "invariant_issues": result.invariant_issues,
         "baseline_contract_count": len(result.baseline_contracts),
         "final_contract_count": len(result.final_contracts),
     }
-    (out_dir / "rag_proposal.summary.json").write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    summary_json = json.dumps(summary, ensure_ascii=False, indent=2)
+    graph_md = f"# 계약 그래프\n\n```mermaid\n{result.contracts_mermaid}\n```\n"
+
+    # 버전 디렉터리에 저장 (누적)
+    (version_dir / "rag_proposal.requirements.md").write_text(result.requirements_doc, encoding="utf-8")
+    (version_dir / "rag_proposal.generated.yaml").write_text(result.yaml, encoding="utf-8")
+    (version_dir / "contracts_graph.md").write_text(graph_md, encoding="utf-8")
+    (version_dir / "rag_proposal.summary.json").write_text(summary_json, encoding="utf-8")
+
+    # 최신(docs/)에도 갱신
+    (out_dir / "rag_proposal.requirements.md").write_text(result.requirements_doc, encoding="utf-8")
+    (out_dir / "rag_proposal.generated.yaml").write_text(result.yaml, encoding="utf-8")
+    (out_dir / "contracts_graph.md").write_text(graph_md, encoding="utf-8")
+    (out_dir / "rag_proposal.summary.json").write_text(summary_json, encoding="utf-8")
+
+    return version_dir
 
 
 STATE_FILE = "rag_state.json"
+SPEC_VERSION = "1.0"
+VERSIONS_DIR = "versions"
 
 
-def save_state(result: RagProposalResult, out_dir: Path) -> Path:
-    """최종 계약과 진화 로그를 상태 파일로 저장해 다음 호출의 입력으로 재사용한다."""
-    out_dir.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "contracts": [c.model_dump() for c in result.final_contracts],
-        "evolution_log": result.evolution_log.to_dicts(),
-    }
-    path = out_dir / STATE_FILE
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    return path
-
-
-def load_state(out_dir: Path) -> tuple[List[InterfaceContract] | None, EvolutionLog | None]:
-    """상태 파일에서 이전 계약/진화 로그를 읽는다. 없으면 (None, None)."""
+def _load_state_data(out_dir: Path) -> dict:
+    """상태 파일 전체(spec)를 읽는다. 없으면 빈 spec."""
     path = out_dir / STATE_FILE
     if not path.is_file():
-        return None, None
+        return {"spec_version": SPEC_VERSION, "runs": []}
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
+        return {"spec_version": SPEC_VERSION, "runs": []}
+    data.setdefault("spec_version", SPEC_VERSION)
+    data.setdefault("runs", [])
+    return data
+
+
+def next_run_id(out_dir: Path) -> int:
+    """누적 run 개수 + 1 을 다음 run id 로 돌려준다."""
+    return len(_load_state_data(out_dir)["runs"]) + 1
+
+
+def load_state(out_dir: Path) -> tuple[List[InterfaceContract] | None, EvolutionLog | None]:
+    """최신 run 의 계약/진화 로그를 읽어 이어서 진화하기 위한 입력으로 쓴다."""
+    runs = _load_state_data(out_dir)["runs"]
+    if not runs:
         return None, None
-    contracts = [InterfaceContract(**c) for c in data.get("contracts", [])]
+    latest = runs[-1]
+    contracts = [InterfaceContract(**c) for c in latest.get("contracts", [])]
     entries = [
         EvolutionEntry(
             iteration=e["iteration"],
             agent=e.get("agent", ""),
+            role=e.get("role", ""),
+            proposals=list(e.get("proposals", [])),
+            critiques=list(e.get("critiques", [])),
             changes=[ContractChange(**c) for c in e.get("changes", [])],
+            add_count=e.get("add_count", 0),
+            remove_count=e.get("remove_count", 0),
+            reinforce_count=e.get("reinforce_count", 0),
+            evolution_degree=e.get("evolution_degree", 0),
         )
-        for e in data.get("evolution_log", [])
+        for e in latest.get("evolution_log", [])
     ]
     return contracts, EvolutionLog(entries=entries)
+
+
+def save_run(result: RagProposalResult, out_dir: Path, run_id: int) -> Path:
+    """이번 run 을 상태 파일의 runs 히스토리에 누적 기록한다."""
+    data = _load_state_data(out_dir)
+    artifact_base = f"{VERSIONS_DIR}/run_{run_id:03d}"
+    run_record = {
+        "run_id": run_id,
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "user_request": result.user_request,
+        "contracts_count": len(result.final_contracts),
+        "contracts": [c.model_dump() for c in result.final_contracts],
+        "evolution_log": result.evolution_log.to_dicts(),
+        "evolution_degree_total": result.evolution_log.total_degree(),
+        "artifacts": {
+            "yaml": f"{artifact_base}/rag_proposal.generated.yaml",
+            "summary": f"{artifact_base}/rag_proposal.summary.json",
+            "requirements": f"{artifact_base}/rag_proposal.requirements.md",
+            "contracts_graph": f"{artifact_base}/contracts_graph.md",
+        },
+    }
+    data["runs"].append(run_record)
+    data["latest_run_id"] = run_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / STATE_FILE
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
 
 
 def main(argv: List[str] | None = None) -> int:
@@ -221,6 +274,7 @@ def main(argv: List[str] | None = None) -> int:
         parser.error("--task 값 또는 대화형 입력이 필요합니다.")
 
     out_dir = Path(args.out)
+    run_id = next_run_id(out_dir)
     existing_contracts = None
     prior_log = None
     if not args.fresh:
@@ -230,8 +284,8 @@ def main(argv: List[str] | None = None) -> int:
     result = run_proposal(task, llm, k=args.k,
                           existing_contracts=existing_contracts, prior_log=prior_log)
 
-    write_artifacts(result, out_dir)
-    save_state(result, out_dir)
+    write_artifacts(result, out_dir, run_id)
+    save_run(result, out_dir, run_id)
 
     print("=== 최종 계약 (YAML) ===")
     print(result.yaml)

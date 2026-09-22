@@ -63,6 +63,49 @@
 Get-Content docs\contracts_graph.md
 ```
 
+## JSON spec (`docs/rag_state.json`)
+
+상태 파일은 아래 구조의 **JSON spec** 으로, 에이전트 협력·진화도·산출물 누적 버전을 기록한다.
+
+```json
+{
+  "spec_version": "1.0",
+  "runs": [
+    {
+      "run_id": 1,
+      "timestamp": "...",
+      "user_request": "...",
+      "contracts_count": 11,
+      "contracts": [ { "name": "...", "role": "...", ... } ],
+      "evolution_log": [
+        {
+          "iteration": 1,
+          "agent": "RAG Retriever Agent",
+          "role": "Retriever",
+          "proposals": ["Embedding Model Evaluation", "..."],
+          "critiques": ["...", "..."],
+          "changes": [ { "action": "add", "name": "...", "detail": "새 계약 추가" } ],
+          "add_count": 2, "remove_count": 0, "reinforce_count": 0,
+          "evolution_degree": 2
+        }
+      ],
+      "evolution_degree_total": 6,
+      "artifacts": {
+        "yaml": "versions/run_001/rag_proposal.generated.yaml",
+        "summary": "versions/run_001/rag_proposal.summary.json",
+        "requirements": "versions/run_001/rag_proposal.requirements.md",
+        "contracts_graph": "versions/run_001/contracts_graph.md"
+      }
+    }
+  ],
+  "latest_run_id": 2
+}
+```
+
+- **협력**: 각 iteration 마다 에이전트(`agent`/`role`)가 제안한 계약(`proposals`)과 비판(`critiques`)
+- **진화도**: iteration 별 `evolution_degree`(add+remove+reinforce) + run 별 `evolution_degree_total`
+- **누적 버전**: 산출물(md/yaml/json)이 `docs/versions/run_NNN/` 에 버전별로 저장되고, `artifacts` 로 경로 기록
+
 ## 직접 확인
 
 ```powershell

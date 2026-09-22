@@ -347,6 +347,31 @@ coopagent 를 OpenCode/Cline 의 TUI 에서 직접 호출할 수 있도록 MCP �
 
 → `docs/rag_state.json` 을 무시하고 새 baseline 부터 시작한다.
 
+#### 상태 기록 형식: JSON spec + 산출물 누적 버전
+
+`docs/rag_state.json` 은 **JSON spec**(`spec_version`)으로, run 히스토리(`runs`)를 누적한다.
+각 run 은 **에이전트 협력**(agent/role/proposals/critiques), **진화도**(iteration 별
+`evolution_degree`, run 별 `evolution_degree_total`), 그리고 **산출물 버전 경로**
+(`docs/versions/run_NNN/` 의 md/yaml/json)를 기록한다.
+
+```json
+{
+  "spec_version": "1.0",
+  "runs": [
+    {
+      "run_id": 1,
+      "contracts": [...],
+      "evolution_log": [
+        { "iteration": 1, "agent": "...", "role": "...", "proposals": [...], "critiques": [...], "evolution_degree": 2 }
+      ],
+      "evolution_degree_total": 6,
+      "artifacts": { "yaml": "versions/run_001/...", "summary": "...", "requirements": "...", "contracts_graph": "..." }
+    }
+  ],
+  "latest_run_id": 1
+}
+```
+
 #### 상태 파일 예시 (`docs/rag_state.json`)
 
 ```json

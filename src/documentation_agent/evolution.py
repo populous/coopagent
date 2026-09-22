@@ -74,11 +74,18 @@ class ContractChange(BaseModel):
 
 
 class EvolutionEntry(BaseModel):
-    """한 반복(iteration)에서 일어난 변경 묶음."""
+    """한 반복(iteration)에서 일어난 협력(제안/비판)과 변경 묶음."""
 
     iteration: int
-    agent: str = Field(default="", description="변경을 일으킨 에이전트")
+    agent: str = Field(default="", description="에이전트 이름")
+    role: str = Field(default="", description="에이전트 역할")
+    proposals: List[str] = Field(default_factory=list, description="제안한 계약 이름들")
+    critiques: List[str] = Field(default_factory=list, description="비판 문구들")
     changes: List[ContractChange] = Field(default_factory=list)
+    add_count: int = 0
+    remove_count: int = 0
+    reinforce_count: int = 0
+    evolution_degree: int = 0
 
 
 class EvolutionLog(BaseModel):
@@ -86,8 +93,34 @@ class EvolutionLog(BaseModel):
 
     entries: List[EvolutionEntry] = Field(default_factory=list)
 
-    def record(self, iteration: int, agent: str, changes: List[ContractChange]) -> None:
-        self.entries.append(EvolutionEntry(iteration=iteration, agent=agent, changes=changes))
+    def record(
+        self,
+        iteration: int,
+        agent: str,
+        changes: List[ContractChange],
+        role: str = "",
+        proposals: List[str] | None = None,
+        critiques: List[str] | None = None,
+    ) -> None:
+        add = sum(1 for c in changes if c.action == "add")
+        remove = sum(1 for c in changes if c.action == "remove")
+        reinforce = sum(1 for c in changes if c.action == "reinforce")
+        self.entries.append(EvolutionEntry(
+            iteration=iteration,
+            agent=agent,
+            role=role,
+            proposals=list(proposals or []),
+            critiques=list(critiques or []),
+            changes=list(changes),
+            add_count=add,
+            remove_count=remove,
+            reinforce_count=reinforce,
+            evolution_degree=add + remove + reinforce,
+        ))
+
+    def total_degree(self) -> int:
+        """모든 반복의 진화도 합계."""
+        return sum(e.evolution_degree for e in self.entries)
 
     def to_dicts(self) -> List[dict]:
         return [entry.model_dump() for entry in self.entries]

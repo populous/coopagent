@@ -18,3 +18,5 @@ build-*/
 
 # 실행 시 갱신되는 상태 파일 (git 에 커밋하지 않음)
 docs/rag_state.json
+docs/versions/
+docs/demo_spec/
