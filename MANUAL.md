@@ -310,9 +310,58 @@ coopagent 를 OpenCode/Cline 의 TUI 에서 직접 호출할 수 있도록 MCP �
 > 수 분이 걸릴 수 있다. `propose_rag_contracts` 는 파일 쓰기 도구이므로
 > autoApprove(OpenCode 의 permission allow) 목록에 넣지 말 것.
 
-### 기록 유지(상태 연속성)
+### 기록 유지(상태 연속성) — Step-by-Step
 
-`propose_rag_contracts` 는 실행 후 최종 계약·진화 로그를 `docs/rag_state.json` 에
-저장하고, 다음 호출 시 이를 `existing_contracts` 로 재사용해 계약을 **점진적으로
-진화**시킨다. 진화 로그도 이어서 누적된다. 처음부터 다시 시작하려면 MCP 에서
-`fresh=true`, CLI 에서 `--fresh` 를 쓴다.
+`propose_rag_contracts` 는 상태를 유지한다. 실행 결과(최종 계약 + 진화 로그)를
+`docs/rag_state.json` 에 저장하고, 다음 호출에서 이를 이어서 재사용한다.
+
+#### 1단계: 첫 실행 — baseline 계약 생성
+
+```powershell
+.\ragproposal.ps1 --task "RAG 시스템 구축 요청" --out docs
+```
+
+1. 페르소나 인터뷰 → `ContractSynthesizer` 가 baseline 계약 합성
+2. 역할 에이전트 5종이 제안/비판 → 최종 계약 생성
+3. 산출물 저장: `docs/rag_state.json`(최종 계약 + 진화 로그), `rag_proposal.generated.yaml`, `rag_proposal.summary.json`
+
+#### 2단계: 두 번째 실행 — 점진적 진화
+
+```powershell
+.\ragproposal.ps1 --task "위 계약을 개선해 줘" --out docs
+```
+
+1. `docs/rag_state.json` 의 **이전 최종 계약**을 `existing_contracts` 로 로드
+2. 에이전트가 이전 계약 위에서 다시 제안/비판 → 계약이 점진적으로 진화
+3. 진화 로그가 **이어서 누적**(iteration 번호 연속)
+4. 갱신된 상태가 다시 `docs/rag_state.json` 에 저장
+
+#### 3단계: 처음부터 다시 시작 (초기화)
+
+```powershell
+# CLI
+.\ragproposal.ps1 --task "..." --out docs --fresh
+
+# MCP: propose_rag_contracts 호출 시 fresh=true
+```
+
+→ `docs/rag_state.json` 을 무시하고 새 baseline 부터 시작한다.
+
+#### 상태 파일 예시 (`docs/rag_state.json`)
+
+```json
+{
+  "contracts": [
+    { "name": "HybridRetriever", "role": "Retriever", "inputs": ["query"], "outputs": ["docs"] }
+  ],
+  "evolution_log": [
+    {
+      "iteration": 1,
+      "agent": "Retriever",
+      "changes": [
+        { "action": "add", "name": "RankingQualityEvaluator", "detail": "새 계약 추가" }
+      ]
+    }
+  ]
+}
+```
