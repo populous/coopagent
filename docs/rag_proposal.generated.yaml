@@ -1,716 +1,262 @@
 steps:
-- name: Data Retrieval Module
-  role: Retriever
-  inputs:
-  - Query
-  - Data Source Identifier
-  outputs:
-  - Raw Data
-  preconditions:
-  - Data Source is accessible
-  - Query is well-formed
-  postconditions:
-  - Raw Data is retrieved from the source
-  failure_modes:
-  - Data Source is unavailable
-  - Query is malformed
-  metrics:
-  - Data Retrieval Time
-  - Success Rate
-- name: Data Processing Module
-  role: Processor
-  inputs:
-  - Raw Data
-  outputs:
-  - Processed Data
-  preconditions:
-  - Raw Data is available
-  postconditions:
-  - Data is processed and ready for analysis
-  failure_modes:
-  - Data Processing Error
-  - Insufficient Resources
-  metrics:
-  - Processing Time
-  - Error Rate
-- name: Data Integration Module
-  role: Integrator
-  inputs:
-  - Processed Data
-  - Existing System Data
-  outputs:
-  - Integrated Data
-  preconditions:
-  - Processed Data is available
-  - Existing System Data is accessible
-  postconditions:
-  - Data is integrated and consistent
-  failure_modes:
-  - Data Mismatch
-  - Integration Conflict
-  metrics:
-  - Integration Time
-  - Data Consistency Rate
-- name: Security Module
-  role: Security
-  inputs:
-  - User Credentials
-  - Access Request
-  outputs:
-  - Access Granted/Denied
-  preconditions:
-  - User Credentials are provided
-  postconditions:
-  - Access is controlled based on credentials
-  failure_modes:
-  - Unauthorized Access
-  - Credential Breach
-  metrics:
-  - Access Control Accuracy
-  - Security Breach Incidents
-- name: Scalability Module
-  role: Scalability Manager
-  inputs:
-  - System Load
-  - Resource Availability
-  outputs:
-  - Resource Allocation
-  preconditions:
-  - System Load is monitored
-  postconditions:
-  - Resources are allocated to handle load
-  failure_modes:
-  - Resource Exhaustion
-  - Load Balancing Failure
-  metrics:
-  - Scalability Efficiency
-  - Resource Utilization Rate
-- name: Performance Optimization Module
-  role: Optimizer
-  inputs:
-  - System Performance Metrics
-  outputs:
-  - Optimized Performance Parameters
-  preconditions:
-  - Performance Metrics are collected
-  postconditions:
-  - System performance is optimized
-  failure_modes:
-  - Optimization Failure
-  - Performance Degradation
-  metrics:
-  - Response Time
-  - Throughput
-- name: Project Management Module
+- name: Embedding Model Version Management
   role: Orchestrator
   inputs:
-  - Project Data
-  - Team Updates
+  - Model artifacts
+  - Version metadata
   outputs:
-  - Project Status Dashboard
+  - Versioned model artifacts
+  - Version history logs
   preconditions:
-  - Project Data is up-to-date
+  - Model artifacts are available
+  - Version control system is set up
   postconditions:
-  - Project status is visualized and monitored
+  - Model versions are tracked
+  - Version history is updated
   failure_modes:
-  - Data Update Delay
-  - Visualization Error
+  - Version conflict
+  - Data corruption
   metrics:
-  - Project Monitoring Accuracy
-  - Update Frequency
-- name: Customer Feedback Analysis Module
-  role: Analyzer
+  - Number of versions tracked
+  - Time to retrieve a specific version
+- name: Recall@k Evaluation
+  role: Evaluator
   inputs:
-  - Customer Feedback Data
+  - Search results
+  - Ground truth labels
   outputs:
-  - Feedback Insights
+  - Recall@k score
   preconditions:
-  - Feedback Data is collected
+  - Search results are generated
+  - Ground truth labels are available
   postconditions:
-  - Insights are generated from feedback
+  - Recall@k score is calculated
   failure_modes:
-  - Data Analysis Error
-  - Insight Generation Delay
+  - Incorrect ground truth labels
+  - Miscalculation of recall
   metrics:
-  - Insight Accuracy
-  - Feedback Processing Time
-- name: Enhanced Data Retrieval Module
-  role: Retriever
+  - Recall@k score
+  - Time to compute recall
+- name: MRR Evaluation
+  role: Evaluator
   inputs:
-  - Query
-  - Data Source Identifier
-  - User Context
+  - Search results
+  - Ground truth labels
   outputs:
-  - Raw Data
-  - Retrieval Metadata
+  - MRR score
   preconditions:
-  - Data Source is accessible
-  - Query is well-formed
-  - User Context is valid
+  - Search results are generated
+  - Ground truth labels are available
   postconditions:
-  - Raw Data is retrieved from the source
-  - Retrieval Metadata is logged
+  - MRR score is calculated
   failure_modes:
-  - Data Source is unavailable
-  - Query is malformed
-  - User Context is invalid
+  - Incorrect ground truth labels
+  - Miscalculation of MRR
   metrics:
-  - Data Retrieval Time
-  - Success Rate
-  - User Context Relevance
-- name: Contextual Data Processing Module
-  role: Processor
-  inputs:
-  - Raw Data
-  - User Context
-  outputs:
-  - Processed Data
-  - Processing Metadata
-  preconditions:
-  - Raw Data is available
-  - User Context is valid
-  postconditions:
-  - Data is processed and ready for analysis
-  - Processing Metadata is logged
-  failure_modes:
-  - Data Processing Error
-  - Insufficient Resources
-  - User Context Misalignment
-  metrics:
-  - Processing Time
-  - Error Rate
-  - Contextual Processing Accuracy
-- name: Adaptive Data Integration Module
-  role: Integrator
-  inputs:
-  - Processed Data
-  - Existing System Data
-  - Integration Rules
-  outputs:
-  - Integrated Data
-  - Integration Report
-  preconditions:
-  - Processed Data is available
-  - Existing System Data is accessible
-  - Integration Rules are defined
-  postconditions:
-  - Data is integrated and consistent
-  - Integration Report is generated
-  failure_modes:
-  - Data Mismatch
-  - Integration Conflict
-  - Rule Misapplication
-  metrics:
-  - Integration Time
-  - Data Consistency Rate
-  - Rule Application Accuracy
-- name: Dynamic Security Module
-  role: Security
-  inputs:
-  - User Credentials
-  - Access Request
-  - Security Context
-  outputs:
-  - Access Granted/Denied
-  - Security Log
-  preconditions:
-  - User Credentials are provided
-  - Security Context is valid
-  postconditions:
-  - Access is controlled based on credentials
-  - Security Log is updated
-  failure_modes:
-  - Unauthorized Access
-  - Credential Breach
-  - Context Misinterpretation
-  metrics:
-  - Access Control Accuracy
-  - Security Breach Incidents
-  - Contextual Security Effectiveness
-- name: Elastic Scalability Module
-  role: Scalability Manager
-  inputs:
-  - System Load
-  - Resource Availability
-  - Scalability Policies
-  outputs:
-  - Resource Allocation
-  - Scalability Report
-  preconditions:
-  - System Load is monitored
-  - Scalability Policies are defined
-  postconditions:
-  - Resources are allocated to handle load
-  - Scalability Report is generated
-  failure_modes:
-  - Resource Exhaustion
-  - Load Balancing Failure
-  - Policy Misalignment
-  metrics:
-  - Scalability Efficiency
-  - Resource Utilization Rate
-  - Policy Compliance Rate
-- name: Proactive Performance Optimization Module
-  role: Optimizer
-  inputs:
-  - System Performance Metrics
-  - Optimization Goals
-  outputs:
-  - Optimized Performance Parameters
-  - Optimization Report
-  preconditions:
-  - Performance Metrics are collected
-  - Optimization Goals are defined
-  postconditions:
-  - System performance is optimized
-  - Optimization Report is generated
-  failure_modes:
-  - Optimization Failure
-  - Performance Degradation
-  - Goal Misalignment
-  metrics:
-  - Response Time
-  - Throughput
-  - Goal Achievement Rate
-- name: Integrated Project Management Module
+  - MRR score
+  - Time to compute MRR
+- name: Experiment Tracking
   role: Orchestrator
   inputs:
-  - Project Data
-  - Team Updates
-  - Project Milestones
+  - Experiment parameters
+  - Model performance metrics
   outputs:
-  - Project Status Dashboard
-  - Milestone Report
+  - Experiment logs
+  - Performance reports
   preconditions:
-  - Project Data is up-to-date
-  - Project Milestones are defined
+  - Experiment setup is complete
+  - Tracking system is operational
   postconditions:
-  - Project status is visualized and monitored
-  - Milestone Report is generated
+  - Experiments are logged
+  - Performance metrics are stored
   failure_modes:
-  - Data Update Delay
-  - Visualization Error
-  - Milestone Misreporting
+  - Data loss
+  - Incorrect logging
   metrics:
-  - Project Monitoring Accuracy
-  - Update Frequency
-  - Milestone Achievement Rate
-- name: Advanced Customer Feedback Analysis Module
-  role: Analyzer
+  - Number of experiments tracked
+  - Accuracy of logged data
+- name: Model Performance Visualization
+  role: Visualizer
   inputs:
-  - Customer Feedback Data
-  - Sentiment Analysis Model
+  - Performance metrics
+  - Evaluation scores
   outputs:
-  - Feedback Insights
-  - Sentiment Report
+  - Visualized performance reports
   preconditions:
-  - Feedback Data is collected
-  - Sentiment Analysis Model is trained
+  - Performance metrics are available
+  - Visualization tools are set up
   postconditions:
-  - Insights are generated from feedback
-  - Sentiment Report is generated
+  - Performance reports are visualized
   failure_modes:
-  - Data Analysis Error
-  - Insight Generation Delay
-  - Model Misinterpretation
+  - Incorrect data visualization
+  - Tool malfunction
   metrics:
-  - Insight Accuracy
-  - Feedback Processing Time
-  - Sentiment Analysis Accuracy
-- name: Search Result Ranking Module
+  - Clarity of visualizations
+  - Time to generate visualizations
+- name: Embedding Model Evaluation
+  role: Evaluator
+  inputs:
+  - Versioned model artifacts
+  - Evaluation dataset
+  outputs:
+  - Evaluation metrics
+  - Performance report
+  preconditions:
+  - Versioned model artifacts are available
+  - Evaluation dataset is prepared
+  postconditions:
+  - Model performance is evaluated
+  - Evaluation metrics are recorded
+  failure_modes:
+  - Dataset mismatch
+  - Evaluation errors
+  metrics:
+  - Evaluation accuracy
+  - Time to evaluate model
+- name: Embedding Model Deployment
+  role: Orchestrator
+  inputs:
+  - Versioned model artifacts
+  - Deployment configuration
+  outputs:
+  - Deployed model instance
+  - Deployment logs
+  preconditions:
+  - Deployment environment is ready
+  - Configuration is validated
+  postconditions:
+  - Model is deployed
+  - Deployment is logged
+  failure_modes:
+  - Deployment failure
+  - Configuration errors
+  metrics:
+  - Deployment success rate
+  - Time to deploy model
+- name: Diversity and Redundancy Management
   role: Ranker
   inputs:
-  - Search Results
-  - User Preferences
-  - Contextual Information
+  - Search results
   outputs:
-  - Ranked Search Results
+  - Diverse and non-redundant search results
   preconditions:
-  - Search Results are available
-  - User Preferences are defined
+  - Search results are available
   postconditions:
-  - Search Results are ranked according to relevance and diversity
+  - Search results are diverse and non-redundant
   failure_modes:
-  - Ranking Algorithm Failure
-  - Preference Misalignment
+  - Lack of diversity
+  - Redundant results
   metrics:
-  - Ranking Accuracy
-  - Diversity Score
-  - User Satisfaction Rate
-- name: Duplicate Removal Module
+  - Diversity score
+  - Redundancy rate
+- name: RRF Fusion and Re-ranking
   role: Ranker
   inputs:
-  - Ranked Search Results
+  - Ranked lists from multiple sources
   outputs:
-  - Unique Search Results
+  - Re-ranked list
   preconditions:
-  - Ranked Search Results are available
+  - Ranked lists are available
   postconditions:
-  - Duplicate entries are removed from the search results
+  - List is re-ranked using RRF fusion
   failure_modes:
-  - Duplicate Detection Failure
-  - False Positive Removal
+  - Incorrect fusion
+  - Suboptimal re-ranking
   metrics:
-  - Duplicate Removal Accuracy
-  - False Positive Rate
-- name: RRF Fusion Re-ranking Module
+  - Re-ranking accuracy
+  - Time to re-rank
+- name: Evaluation Harness Setup
+  role: Orchestrator
+  inputs:
+  - Evaluation metrics
+  - Evaluation criteria
+  outputs:
+  - Evaluation harness configuration
+  preconditions:
+  - Evaluation criteria are defined
+  - Metrics are selected
+  postconditions:
+  - Evaluation harness is configured
+  failure_modes:
+  - Incorrect configuration
+  - Missing criteria
+  metrics:
+  - Setup time
+  - Configuration accuracy
+- name: Latency and Reliability Evaluation
+  role: Evaluator
+  inputs:
+  - System logs
+  - Performance metrics
+  outputs:
+  - Latency report
+  - Reliability report
+  preconditions:
+  - System logs are available
+  - Performance metrics are collected
+  postconditions:
+  - Latency and reliability are evaluated
+  failure_modes:
+  - Incomplete logs
+  - Incorrect metrics
+  metrics:
+  - Average latency
+  - System uptime percentage
+- name: MMR Diversity Re-ranking
   role: Ranker
   inputs:
-  - Initial Ranked Results
-  - RRF Parameters
+  - Initial ranked list
+  - Diversity criteria
   outputs:
-  - Re-ranked Search Results
+  - Re-ranked list with diversity
   preconditions:
-  - Initial Ranked Results are available
-  - RRF Parameters are defined
+  - Initial ranked list is available
+  - Diversity criteria are defined
   postconditions:
-  - Search Results are re-ranked using RRF fusion
+  - List is re-ranked with diversity considerations
   failure_modes:
-  - RRF Parameter Misconfiguration
-  - Re-ranking Failure
+  - Failure to achieve diversity
+  - Incorrect re-ranking
   metrics:
-  - Re-ranking Accuracy
-  - Fusion Effectiveness
-- name: Diversity Enhancement Module
-  role: Ranker
-  inputs:
-  - Ranked Search Results
-  - Diversity Criteria
-  outputs:
-  - Diverse Search Results
-  preconditions:
-  - Ranked Search Results are available
-  - Diversity Criteria are defined
-  postconditions:
-  - Search Results are enhanced for diversity
-  failure_modes:
-  - Diversity Criteria Misapplication
-  - Diversity Enhancement Failure
-  metrics:
-  - Diversity Enhancement Rate
-  - Criteria Compliance Rate
-- name: Query Handling Module
+  - Diversity score
+  - Re-ranking time
+- name: Provenance Tracking
   role: Orchestrator
   inputs:
-  - User Query
-  - User Context
-  - System State
+  - Search results
+  - Source metadata
   outputs:
-  - Routed Query
-  - Mode Selection
+  - Annotated search results with provenance
   preconditions:
-  - User Query is received
-  - System State is stable
+  - Search results are generated
+  - Source metadata is available
   postconditions:
-  - Query is routed to appropriate module
-  - Mode is selected based on context
+  - Search results are annotated with provenance information
   failure_modes:
-  - Query Routing Failure
-  - Mode Selection Error
+  - Missing provenance data
+  - Incorrect source annotation
   metrics:
-  - Routing Accuracy
-  - Mode Selection Efficiency
-- name: Parallel Processing Module
+  - Provenance accuracy
+  - Time to annotate results
+- name: Provenance and Diversity Enhanced Retrieval
   role: Orchestrator
   inputs:
-  - Routed Query
-  - Available Resources
+  - Search query
+  - Diversity criteria
+  - Source metadata
   outputs:
-  - Processed Results
+  - Diverse and provenance-annotated search results
   preconditions:
-  - Routed Query is available
-  - Resources are allocated
+  - Search query is received
+  - Diversity criteria are defined
+  - Source metadata is available
   postconditions:
-  - Query is processed in parallel
-  - Results are aggregated
+  - Search results are diverse and annotated with provenance
   failure_modes:
-  - Resource Allocation Failure
-  - Parallel Execution Error
+  - Failure to achieve diversity
+  - Missing provenance data
+  - Incorrect annotation
   metrics:
-  - Processing Speed
-  - Resource Utilization
-- name: Error Handling and Recovery Module
-  role: Orchestrator
-  inputs:
-  - Error Logs
-  - System State
-  outputs:
-  - Recovery Actions
-  - Error Reports
-  preconditions:
-  - Error is detected
-  - System State is logged
-  postconditions:
-  - System is recovered from error
-  - Error is documented
-  failure_modes:
-  - Error Detection Failure
-  - Recovery Process Failure
-  metrics:
-  - Error Recovery Time
-  - Error Documentation Accuracy
-- name: Mode Switching Module
-  role: Orchestrator
-  inputs:
-  - System Performance Metrics
-  - User Feedback
-  outputs:
-  - Mode Adjustment
-  - Performance Report
-  preconditions:
-  - Performance Metrics are collected
-  - User Feedback is analyzed
-  postconditions:
-  - System mode is adjusted for optimal performance
-  - Performance Report is generated
-  failure_modes:
-  - Mode Adjustment Failure
-  - Performance Degradation
-  metrics:
-  - Mode Adjustment Accuracy
-  - Performance Improvement Rate
-- name: State Management Module
-  role: Orchestrator
-  inputs:
-  - System State Changes
-  - User Interactions
-  outputs:
-  - Updated System State
-  - State Transition Log
-  preconditions:
-  - System State is monitored
-  - User Interactions are tracked
-  postconditions:
-  - System State is updated
-  - State Transition is logged
-  failure_modes:
-  - State Update Failure
-  - Transition Logging Error
-  metrics:
-  - State Update Accuracy
-  - Transition Logging Completeness
-- name: Query Understanding Module
-  role: Retriever
-  inputs:
-  - User Query
-  - User Context
-  outputs:
-  - Interpreted Query
-  - Query Intent
-  preconditions:
-  - User Query is received
-  - User Context is valid
-  postconditions:
-  - Query is interpreted and intent is identified
-  failure_modes:
-  - Query Misinterpretation
-  - Context Misalignment
-  metrics:
-  - Interpretation Accuracy
-  - Intent Identification Rate
-- name: Contextual Data Retrieval Module
-  role: Retriever
-  inputs:
-  - Interpreted Query
-  - Data Source Identifier
-  - User Context
-  outputs:
-  - Raw Data
-  - Retrieval Metadata
-  preconditions:
-  - Data Source is accessible
-  - Interpreted Query is well-formed
-  - User Context is valid
-  postconditions:
-  - Raw Data is retrieved from the source
-  - Retrieval Metadata is logged
-  failure_modes:
-  - Data Source is unavailable
-  - Query is malformed
-  - User Context is invalid
-  metrics:
-  - Data Retrieval Time
-  - Success Rate
-  - User Context Relevance
-- name: Semantic Data Processing Module
-  role: Processor
-  inputs:
-  - Raw Data
-  - User Context
-  outputs:
-  - Processed Data
-  - Semantic Metadata
-  preconditions:
-  - Raw Data is available
-  - User Context is valid
-  postconditions:
-  - Data is semantically processed and ready for analysis
-  - Semantic Metadata is logged
-  failure_modes:
-  - Data Processing Error
-  - Insufficient Resources
-  - Semantic Misalignment
-  metrics:
-  - Processing Time
-  - Error Rate
-  - Semantic Processing Accuracy
-- name: Intelligent Data Integration Module
-  role: Integrator
-  inputs:
-  - Processed Data
-  - Existing System Data
-  - Integration Rules
-  outputs:
-  - Integrated Data
-  - Integration Report
-  preconditions:
-  - Processed Data is available
-  - Existing System Data is accessible
-  - Integration Rules are defined
-  postconditions:
-  - Data is integrated and consistent
-  - Integration Report is generated
-  failure_modes:
-  - Data Mismatch
-  - Integration Conflict
-  - Rule Misapplication
-  metrics:
-  - Integration Time
-  - Data Consistency Rate
-  - Rule Application Accuracy
-- name: Adaptive Security Module
-  role: Security
-  inputs:
-  - User Credentials
-  - Access Request
-  - Security Context
-  outputs:
-  - Access Granted/Denied
-  - Security Log
-  preconditions:
-  - User Credentials are provided
-  - Security Context is valid
-  postconditions:
-  - Access is controlled based on credentials
-  - Security Log is updated
-  failure_modes:
-  - Unauthorized Access
-  - Credential Breach
-  - Context Misinterpretation
-  metrics:
-  - Access Control Accuracy
-  - Security Breach Incidents
-  - Contextual Security Effectiveness
-- name: Dynamic Scalability Module
-  role: Scalability Manager
-  inputs:
-  - System Load
-  - Resource Availability
-  - Scalability Policies
-  outputs:
-  - Resource Allocation
-  - Scalability Report
-  preconditions:
-  - System Load is monitored
-  - Scalability Policies are defined
-  postconditions:
-  - Resources are allocated to handle load
-  - Scalability Report is generated
-  failure_modes:
-  - Resource Exhaustion
-  - Load Balancing Failure
-  - Policy Misalignment
-  metrics:
-  - Scalability Efficiency
-  - Resource Utilization Rate
-  - Policy Compliance Rate
-- name: Execution Logging Module
-  role: Logger
-  inputs:
-  - Execution Data
-  - Module Identifier
-  outputs:
-  - Execution Log
-  preconditions:
-  - Execution Data is available
-  - Module Identifier is valid
-  postconditions:
-  - Execution Log is created and stored
-  failure_modes:
-  - Logging Failure
-  - Data Corruption
-  metrics:
-  - Logging Accuracy
-  - Log Storage Efficiency
-- name: Contract Evolution Tracking Module
-  role: Logger
-  inputs:
-  - Contract Changes
-  - Version Identifier
-  outputs:
-  - Evolution Log
-  preconditions:
-  - Contract Changes are documented
-  - Version Identifier is valid
-  postconditions:
-  - Evolution Log is updated with changes
-  failure_modes:
-  - Tracking Failure
-  - Version Mismatch
-  metrics:
-  - Tracking Accuracy
-  - Change Detection Rate
-- name: Traceability Module
-  role: Logger
-  inputs:
-  - Data Flow
-  - Process Identifier
-  outputs:
-  - Traceability Report
-  preconditions:
-  - Data Flow is monitored
-  - Process Identifier is valid
-  postconditions:
-  - Traceability Report is generated
-  failure_modes:
-  - Traceability Loss
-  - Process Misidentification
-  metrics:
-  - Traceability Completeness
-  - Report Generation Time
-- name: Error Logging Module
-  role: Logger
-  inputs:
-  - Error Data
-  - System State
-  outputs:
-  - Error Log
-  preconditions:
-  - Error Data is captured
-  - System State is logged
-  postconditions:
-  - Error Log is created and stored
-  failure_modes:
-  - Error Logging Failure
-  - Data Loss
-  metrics:
-  - Error Logging Accuracy
-  - Log Retrieval Time
-- name: User Interaction Logging Module
-  role: Logger
-  inputs:
-  - User Actions
-  - Session Identifier
-  outputs:
-  - Interaction Log
-  preconditions:
-  - User Actions are tracked
-  - Session Identifier is valid
-  postconditions:
-  - Interaction Log is created and stored
-  failure_modes:
-  - Logging Interruption
-  - Session Misidentification
-  metrics:
-  - Interaction Logging Accuracy
-  - Session Coverage Rate
+  - Diversity score
+  - Provenance accuracy
+  - Retrieval time

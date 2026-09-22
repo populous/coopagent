@@ -1,115 +1,80 @@
 {
-  "user_request": "RAG 시스템 구축 요청",
+  "user_request": "위 RAG 계약에 재랭킹(MMR 다양성)과 출처 추적(provenance)을 추가해 개선",
   "critiques": {
     "Retriever": [
-      "The Data Retrieval Module lacks specificity in defining what constitutes a 'well-formed' query, which could lead to inconsistent query validation and handling.",
-      "The Data Processing Module does not specify the format or structure of 'Processed Data', which could lead to integration issues with downstream modules.",
-      "The Data Integration Module should include a mechanism for conflict resolution in case of 'Integration Conflict', as this is a common issue in data integration processes.",
-      "The Security Module should consider adding a metric for 'Time to Detect Breach' to enhance the monitoring of security incidents.",
-      "The Scalability Module's precondition 'System Load is monitored' is vague; it should specify the frequency and method of monitoring to ensure timely resource allocation.",
-      "The Performance Optimization Module should include a feedback loop to continuously refine optimization strategies based on real-time performance data.",
-      "The Project Management Module's failure mode 'Visualization Error' is too broad; it should specify types of errors (e.g., data rendering issues, incorrect data representation) for better troubleshooting.",
-      "The Customer Feedback Analysis Module should include a precondition that ensures feedback data is anonymized to protect customer privacy and comply with data protection regulations."
+      "1. **Embedding Model Version Management**: The contract lacks a clear rollback mechanism for version conflicts or data corruption. Including a rollback strategy could mitigate risks associated with these failure modes.",
+      "2. **Recall@k Evaluation**: The contract does not specify how to handle discrepancies between search results and ground truth labels. A mechanism for resolving such discrepancies should be included.",
+      "3. **MRR Evaluation**: Similar to Recall@k, there is no mention of handling discrepancies in ground truth labels. Additionally, the contract could benefit from specifying the acceptable range of MRR scores to quickly identify anomalies.",
+      "4. **Experiment Tracking**: The contract should include a method for verifying the accuracy of logged data to prevent incorrect logging. Additionally, it could specify how to handle incomplete experiment parameters.",
+      "5. **Model Performance Visualization**: The contract should address how to handle cases where visualization tools malfunction or produce incorrect data visualizations. Including a validation step for visualizations could improve reliability.",
+      "6. **Embedding Model Evaluation**: The contract does not specify how to handle dataset mismatches or evaluation errors. Including a validation step for datasets and a method for error correction could enhance robustness.",
+      "7. **Embedding Model Deployment**: The contract should include a rollback mechanism for deployment failures and configuration errors. Additionally, specifying a validation step for deployment configurations could prevent errors.",
+      "8. **Diversity and Redundancy Management**: The contract lacks a clear method for measuring and improving diversity and redundancy. Including specific metrics or thresholds for diversity and redundancy could enhance effectiveness.",
+      "9. **RRF Fusion and Re-ranking**: The contract should specify how to handle incorrect fusion or suboptimal re-ranking. Including a validation step for re-ranked lists could improve accuracy.",
+      "10. **Evaluation Harness Setup**: The contract does not specify how to handle missing criteria or incorrect configurations. Including a validation step for configurations could prevent errors.",
+      "11. **Latency and Reliability Evaluation**: The contract should include a method for handling incomplete logs or incorrect metrics. Additionally, specifying acceptable latency and reliability thresholds could help quickly identify issues."
     ],
     "Ranker": [
-      "1. **Data Retrieval Module**: The failure modes do not account for network latency or bandwidth issues, which can affect retrieval time and success rate. Consider adding network-related failure modes.",
-      "2. **Data Processing Module**: The preconditions assume raw data is always available, but do not consider data corruption or format issues. Include checks for data integrity before processing.",
-      "3. **Data Integration Module**: The integration process might face issues with data versioning or schema changes. Consider adding version control and schema validation as part of the preconditions.",
-      "4. **Security Module**: The module lacks consideration for multi-factor authentication or role-based access control, which are critical for modern security practices. Enhance the module to include these aspects.",
-      "5. **Scalability Module**: The module does not address the potential for over-provisioning resources, which can lead to inefficiencies. Include metrics for cost-effectiveness and resource optimization.",
-      "6. **Performance Optimization Module**: The failure modes do not consider the impact of optimization on system stability. Include stability checks as part of the postconditions.",
-      "7. **Project Management Module**: The module assumes that project data is always up-to-date, which may not be the case. Implement mechanisms for real-time data synchronization and validation.",
-      "8. **Customer Feedback Analysis Module**: The module does not account for feedback bias or data quality issues. Include data cleansing and bias detection as part of the preconditions.",
-      "9. **Enhanced Data Retrieval Module**: The addition of user context is beneficial, but the module lacks mechanisms to handle privacy concerns related to user data. Include privacy compliance checks.",
-      "10. **Contextual Data Processing Module**: The module should include mechanisms to validate the relevance and accuracy of user context to avoid processing errors.",
-      "11. **Adaptive Data Integration Module**: The integration rules need to be dynamic and adaptable to changes in data sources. Include rule versioning and adaptability as part of the preconditions.",
-      "12. **Dynamic Security Module**: The security context should be continuously updated to reflect the latest threat intelligence. Include real-time threat assessment as part of the preconditions.",
-      "13. **Elastic Scalability Module**: The module should include predictive analytics to anticipate load changes and adjust resources proactively.",
-      "14. **Proactive Performance Optimization Module**: The module should include feedback loops to continuously refine optimization goals based on system performance trends.",
-      "15. **Integrated Project Management Module**: The module should include risk management metrics to identify potential project delays or issues early.",
-      "16. **Advanced Customer Feedback Analysis Module**: The sentiment analysis model should be regularly updated to reflect changes in language use and sentiment trends. Include model retraining as part of the preconditions."
+      "1. **Embedding Model Version Management**: The contract lacks a clear strategy for resolving version conflicts and handling data corruption, which are critical failure modes. Additionally, the metrics do not account for the quality or integrity of the versioned artifacts, which could be crucial for long-term model management.",
+      "2. **Recall@k Evaluation**: The contract does not specify how to handle discrepancies between search results and ground truth labels, which could lead to inaccurate recall scores. Moreover, the metrics focus solely on computation time and score, ignoring the potential need for error analysis or confidence intervals.",
+      "3. **MRR Evaluation**: Similar to Recall@k, this contract does not address potential discrepancies in ground truth labels. It also lacks a mechanism for validating the accuracy of the MRR score, which could be critical for ensuring reliable evaluations.",
+      "4. **Experiment Tracking**: The contract should include mechanisms for ensuring data integrity and consistency across different experiments. The failure modes do not address potential issues with experiment reproducibility, which is essential for scientific rigor.",
+      "5. **Model Performance Visualization**: The contract does not specify how to handle incorrect data visualization or tool malfunctions, which could lead to misleading reports. Additionally, the metrics do not consider user feedback or usability, which are important for effective communication of results.",
+      "6. **Embedding Model Evaluation**: The contract lacks a clear process for handling dataset mismatches and evaluation errors, which could compromise the validity of the evaluation metrics. The metrics should also include measures of evaluation robustness and reliability.",
+      "7. **Embedding Model Deployment**: The contract should include a rollback mechanism for deployment failures and a more detailed approach to handling configuration errors. The metrics do not account for post-deployment monitoring, which is crucial for maintaining model performance.",
+      "8. **Diversity and Redundancy Management**: The contract does not specify how to measure or improve diversity and redundancy, which are critical for enhancing search result quality. The metrics should include user satisfaction or relevance scores to better assess the impact of diversity management.",
+      "9. **RRF Fusion and Re-ranking**: The contract lacks a detailed approach for handling incorrect fusion and suboptimal re-ranking, which could lead to poor search result quality. The metrics should include user engagement or satisfaction scores to better evaluate the effectiveness of re-ranking.",
+      "10. **Evaluation Harness Setup**: The contract does not address potential issues with metric selection or criteria definition, which could lead to inaccurate evaluations. The metrics should include measures of setup flexibility and adaptability to different evaluation scenarios.",
+      "11. **Latency and Reliability Evaluation**: The contract should include a strategy for handling incomplete logs and incorrect metrics, which could compromise the reliability of the evaluation. The metrics should also consider user experience or satisfaction, which are important for assessing system performance.",
+      "12. **MMR Diversity Re-ranking**: The contract lacks a clear strategy for achieving diversity and handling incorrect re-ranking, which could lead to suboptimal search results. The metrics should include user feedback or relevance scores to better assess the impact of diversity re-ranking.",
+      "13. **Provenance Tracking**: The contract does not specify how to handle missing provenance data or incorrect source annotation, which could lead to inaccurate search results. The metrics should include measures of user trust or confidence in the annotated results, which are important for ensuring data integrity."
     ],
     "Orchestrator": [
-      "The Data Retrieval Module lacks a mechanism for handling partial data retrieval, which could be crucial in scenarios where only some data sources are accessible.",
-      "The Data Processing Module does not account for data validation post-processing, which could lead to incorrect analysis if the processed data is flawed.",
-      "The Data Integration Module should include a rollback mechanism in case of integration conflicts to maintain data integrity.",
-      "The Security Module does not specify how to handle credential breaches, such as notifying users or enforcing password changes.",
-      "The Scalability Module lacks a feedback loop to adjust resource allocation dynamically based on real-time performance metrics.",
-      "The Performance Optimization Module should include a mechanism for continuous monitoring to ensure that optimizations do not degrade over time.",
-      "The Project Management Module does not address how to handle discrepancies in team updates, which could lead to inaccurate project status reporting.",
-      "The Customer Feedback Analysis Module should incorporate a feedback loop to refine the analysis model based on new data trends.",
-      "The Enhanced Data Retrieval Module should include a mechanism for validating user context to prevent irrelevant data retrieval.",
-      "The Contextual Data Processing Module lacks a strategy for handling conflicting user contexts, which could lead to processing errors.",
-      "The Adaptive Data Integration Module should include a mechanism for validating integration rules to prevent misapplication.",
-      "The Dynamic Security Module should specify how to handle context misinterpretation to prevent unauthorized access.",
-      "The Elastic Scalability Module should include a mechanism for real-time policy adjustment based on system performance.",
-      "The Proactive Performance Optimization Module should incorporate a mechanism for validating optimization goals to ensure alignment with business objectives.",
-      "The Integrated Project Management Module should include a mechanism for validating milestone reports to prevent misreporting.",
-      "The Advanced Customer Feedback Analysis Module should specify how to handle model misinterpretation to improve sentiment analysis accuracy.",
-      "The Search Result Ranking Module should include a mechanism for validating user preferences to ensure accurate ranking.",
-      "The Duplicate Removal Module should specify how to handle false positive removal to prevent loss of relevant data.",
-      "The RRF Fusion Re-ranking Module should include a mechanism for validating RRF parameters to ensure effective re-ranking.",
-      "The Diversity Enhancement Module should specify how to handle criteria misapplication to ensure compliance with diversity goals."
+      "Embedding Model Version Management: The contract lacks a clear rollback mechanism for version conflicts, which could lead to prolonged downtime. It should include a strategy for resolving conflicts and recovering from data corruption.",
+      "Recall@k Evaluation: The contract does not specify how to handle discrepancies between search results and ground truth labels, which could lead to inaccurate evaluations. It should include a validation step for ground truth labels.",
+      "MRR Evaluation: Similar to Recall@k, this contract lacks a mechanism for validating ground truth labels, which could result in incorrect MRR scores. It should also address potential biases in the evaluation process.",
+      "Experiment Tracking: The contract does not address the need for real-time monitoring of experiments, which could help in early detection of data loss or incorrect logging. It should include a mechanism for alerting when anomalies are detected.",
+      "Model Performance Visualization: The contract does not specify how to handle large datasets that could slow down visualization tools, potentially affecting the clarity and timeliness of reports. It should include performance optimization strategies.",
+      "Embedding Model Evaluation: The contract lacks a contingency plan for handling dataset mismatches, which could lead to evaluation errors. It should include a validation step for datasets before evaluation.",
+      "Embedding Model Deployment: The contract does not address the need for automated rollback in case of deployment failures, which could minimize downtime. It should include a rollback strategy and automated testing post-deployment.",
+      "Diversity and Redundancy Management: The contract does not specify how to measure diversity and redundancy effectively, which could lead to subjective assessments. It should include standardized metrics and thresholds for evaluation.",
+      "RRF Fusion and Re-ranking: The contract lacks a mechanism for validating the correctness of the fusion process, which could lead to suboptimal re-ranking. It should include a validation step for the fusion algorithm.",
+      "Evaluation Harness Setup: The contract does not address the need for continuous integration of new evaluation criteria, which could lead to outdated configurations. It should include a process for regularly updating evaluation criteria.",
+      "Latency and Reliability Evaluation: The contract lacks a mechanism for real-time monitoring of latency and reliability, which could delay the detection of performance issues. It should include real-time alerting and monitoring tools.",
+      "MMR Diversity Re-ranking: The contract does not specify how to handle conflicting diversity criteria, which could lead to inconsistent re-ranking. It should include a prioritization strategy for diversity criteria.",
+      "Provenance Tracking: The contract does not address the need for automated provenance data collection, which could lead to incomplete annotations. It should include automated data collection and validation processes."
     ],
     "Evaluator": [
-      "The Data Retrieval Module lacks a mechanism for handling partial data retrieval, which could improve resilience in case of partial failures.",
-      "The Data Processing Module should include metrics for resource consumption to better understand processing efficiency.",
-      "The Data Integration Module could benefit from a rollback mechanism in case of integration conflicts to maintain data integrity.",
-      "The Security Module should consider implementing multi-factor authentication to enhance security beyond credential-based access.",
-      "The Scalability Module does not account for predictive scaling, which could improve resource allocation efficiency.",
-      "The Performance Optimization Module should include a feedback loop to continuously refine optimization strategies based on real-world performance data.",
-      "The Project Management Module lacks a mechanism for real-time collaboration, which could enhance team coordination and project tracking.",
-      "The Customer Feedback Analysis Module should incorporate real-time sentiment analysis to provide more timely insights.",
-      "The Enhanced Data Retrieval Module should include a mechanism for prioritizing data sources based on reliability and relevance.",
-      "The Contextual Data Processing Module could benefit from adaptive processing techniques that adjust based on user context changes.",
-      "The Adaptive Data Integration Module should include a conflict resolution strategy for rule misapplications to prevent data inconsistencies.",
-      "The Dynamic Security Module should incorporate anomaly detection to identify and respond to unusual access patterns.",
-      "The Elastic Scalability Module should include a mechanism for dynamically adjusting scalability policies based on historical load patterns.",
-      "The Proactive Performance Optimization Module should integrate machine learning to predict and preemptively address performance bottlenecks.",
-      "The Integrated Project Management Module should include automated milestone tracking to reduce manual oversight and errors.",
-      "The Advanced Customer Feedback Analysis Module should incorporate a feedback loop to refine sentiment models based on analysis outcomes.",
-      "The Search Result Ranking Module should include user feedback mechanisms to continuously improve ranking algorithms.",
-      "The Duplicate Removal Module should implement a confidence scoring system to reduce false positives in duplicate detection.",
-      "The RRF Fusion Re-ranking Module should include a mechanism for dynamically adjusting RRF parameters based on user feedback.",
-      "The Diversity Enhancement Module should incorporate user feedback to refine diversity criteria and improve relevance.",
-      "The Query Handling Module should include a fallback mechanism for query routing failures to ensure continuity of service.",
-      "The Parallel Processing Module should incorporate load balancing strategies to optimize resource utilization during peak loads.",
-      "The Error Handling and Recovery Module should include automated recovery strategies to minimize downtime and manual intervention.",
-      "The Mode Switching Module should incorporate predictive analytics to anticipate and preemptively adjust system modes.",
-      "The State Management Module should include a mechanism for auditing state changes to ensure compliance and traceability."
+      "Embedding Model Version Management: The contract lacks a clear rollback mechanism in case of version conflicts or data corruption. Including a rollback strategy could enhance reliability.",
+      "Recall@k Evaluation: The contract does not specify how to handle discrepancies between search results and ground truth labels, which could lead to inaccurate recall scores. A validation step for ground truth labels should be included.",
+      "MRR Evaluation: Similar to Recall@k, there is no mention of handling discrepancies in ground truth labels. Adding a validation process for these labels would improve accuracy.",
+      "Experiment Tracking: The contract should include a mechanism for verifying the accuracy of logged data to prevent data loss or incorrect logging.",
+      "Model Performance Visualization: The contract does not address how to handle tool malfunctions, which could impact the clarity of visualizations. Including a contingency plan for tool failures would be beneficial.",
+      "Embedding Model Evaluation: The contract should specify how to handle dataset mismatches to prevent evaluation errors. A dataset validation step could be added.",
+      "Embedding Model Deployment: The contract lacks a rollback plan in case of deployment failure or configuration errors. Including a rollback mechanism would enhance deployment reliability.",
+      "Diversity and Redundancy Management: The contract does not specify how to measure diversity and redundancy effectively. Defining clear metrics for these aspects would improve the evaluation process.",
+      "RRF Fusion and Re-ranking: The contract should include a method for validating the accuracy of the re-ranked list to ensure optimal results.",
+      "Evaluation Harness Setup: The contract lacks a verification step to ensure that the evaluation criteria and metrics are correctly implemented. Adding a verification process would improve setup accuracy.",
+      "Latency and Reliability Evaluation: The contract should specify how to handle incomplete logs or incorrect metrics to ensure accurate latency and reliability reports.",
+      "MMR Diversity Re-ranking: The contract does not address how to measure the success of achieving diversity in the re-ranked list. Including a clear metric for diversity success would be beneficial.",
+      "Provenance Tracking: The contract should include a method for verifying the accuracy of provenance annotations to prevent incorrect source annotation.",
+      "Provenance and Diversity Enhanced Retrieval: The contract lacks a clear strategy for handling failures in achieving diversity or missing provenance data. Including a contingency plan for these failures would improve reliability."
     ],
     "Logger": [
-      "1. **Data Retrieval Module**: The failure modes do not account for potential security issues such as unauthorized access to data sources. Consider adding security checks as a precondition.",
-      "2. **Data Processing Module**: The preconditions should include validation of data integrity to prevent processing errors due to corrupted data.",
-      "3. **Data Integration Module**: The failure modes should include potential data loss during integration. Consider adding data backup as a precondition.",
-      "4. **Security Module**: The metrics do not include response time for access control, which is crucial for user experience.",
-      "5. **Scalability Module**: The preconditions should include a mechanism for predicting load spikes to proactively allocate resources.",
-      "6. **Performance Optimization Module**: The failure modes should consider the impact of optimization on system stability, such as introducing new bottlenecks.",
-      "7. **Project Management Module**: The metrics should include team collaboration efficiency, as it directly impacts project status updates.",
-      "8. **Customer Feedback Analysis Module**: The preconditions should ensure that feedback data is anonymized to protect user privacy.",
-      "9. **Enhanced Data Retrieval Module**: The addition of 'User Context' increases complexity; ensure that context validation is robust to prevent irrelevant data retrieval.",
-      "10. **Contextual Data Processing Module**: The failure modes should include potential biases introduced by user context, affecting data processing outcomes.",
-      "11. **Adaptive Data Integration Module**: The integration rules should be dynamically adjustable to accommodate evolving data structures.",
-      "12. **Dynamic Security Module**: The security context should be continuously updated to reflect the latest threat intelligence.",
-      "13. **Elastic Scalability Module**: The scalability policies should be adaptable to changes in business requirements and technological advancements.",
-      "14. **Proactive Performance Optimization Module**: The optimization goals should be aligned with business objectives to ensure relevance.",
-      "15. **Integrated Project Management Module**: The failure modes should include potential miscommunication between teams, affecting milestone reporting.",
-      "16. **Advanced Customer Feedback Analysis Module**: The sentiment analysis model should be regularly updated to reflect changes in language use and sentiment trends.",
-      "17. **Search Result Ranking Module**: The metrics should include user engagement rates post-ranking to assess the effectiveness of the ranking algorithm.",
-      "18. **Duplicate Removal Module**: The failure modes should consider the impact of false positives on user trust and satisfaction.",
-      "19. **RRF Fusion Re-ranking Module**: The preconditions should ensure that RRF parameters are optimized for the specific dataset being processed.",
-      "20. **Diversity Enhancement Module**: The diversity criteria should be regularly reviewed to ensure they reflect current user expectations and societal norms.",
-      "21. **Query Handling Module**: The failure modes should include potential delays in query routing due to system overloads.",
-      "22. **Parallel Processing Module**: The preconditions should include a mechanism for dynamically reallocating resources to optimize processing speed.",
-      "23. **Error Handling and Recovery Module**: The metrics should include user impact assessment to understand the effect of errors on user experience.",
-      "24. **Mode Switching Module**: The failure modes should consider the potential for user confusion during mode transitions.",
-      "25. **State Management Module**: The preconditions should include a mechanism for validating state changes to prevent inconsistencies.",
-      "26. **Query Understanding Module**: The metrics should include user satisfaction with query interpretation to ensure alignment with user intent.",
-      "27. **Contextual Data Retrieval Module**: The failure modes should include potential privacy breaches due to user context mismanagement.",
-      "28. **Semantic Data Processing Module**: The preconditions should ensure that semantic metadata is compatible with existing data processing frameworks.",
-      "29. **Intelligent Data Integration Module**: The integration report should include a summary of potential data conflicts and resolutions.",
-      "30. **Adaptive Security Module**: The failure modes should include potential delays in access control due to complex security contexts.",
-      "31. **Dynamic Scalability Module**: The scalability report should include recommendations for future scalability improvements based on current trends."
+      "Embedding Model Version Management: The contract lacks detailed handling of version conflicts and data corruption. It should include mechanisms for conflict resolution and data integrity checks.",
+      "Recall@k Evaluation: The contract does not specify how to handle discrepancies between search results and ground truth labels, which could lead to inaccurate recall calculations.",
+      "MRR Evaluation: Similar to Recall@k, this contract should address potential mismatches between search results and ground truth labels to ensure accurate MRR calculations.",
+      "Experiment Tracking: The contract should include more robust data validation and error-checking mechanisms to prevent data loss and incorrect logging.",
+      "Model Performance Visualization: The contract should specify how to handle visualization tool malfunctions and ensure data accuracy in visualizations.",
+      "Embedding Model Evaluation: The contract should include procedures for verifying dataset compatibility and handling evaluation errors to ensure accurate performance metrics.",
+      "Embedding Model Deployment: The contract should address rollback procedures in case of deployment failures and include more detailed configuration validation steps.",
+      "Diversity and Redundancy Management: The contract should specify methods for measuring and improving diversity and redundancy in search results.",
+      "RRF Fusion and Re-ranking: The contract should include strategies for optimizing fusion and re-ranking processes to improve accuracy and efficiency.",
+      "Evaluation Harness Setup: The contract should include validation steps to ensure that evaluation criteria and metrics are correctly defined and selected.",
+      "Latency and Reliability Evaluation: The contract should specify methods for ensuring the completeness and accuracy of system logs and performance metrics.",
+      "MMR Diversity Re-ranking: The contract should include strategies for achieving diversity in re-ranking and handling potential re-ranking errors.",
+      "Provenance Tracking: The contract should include methods for verifying the accuracy of provenance data and handling missing or incorrect annotations.",
+      "Provenance and Diversity Enhanced Retrieval: The contract should address potential conflicts between diversity and provenance requirements and include strategies for balancing these aspects."
     ]
   },
   "evolution_log": [
@@ -119,42 +84,12 @@
       "changes": [
         {
           "action": "add",
-          "name": "Enhanced Data Retrieval Module",
+          "name": "Embedding Model Evaluation",
           "detail": "새 계약 추가"
         },
         {
           "action": "add",
-          "name": "Contextual Data Processing Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Adaptive Data Integration Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Dynamic Security Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Elastic Scalability Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Proactive Performance Optimization Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Integrated Project Management Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Advanced Customer Feedback Analysis Module",
+          "name": "Embedding Model Deployment",
           "detail": "새 계약 추가"
         }
       ]
@@ -165,22 +100,12 @@
       "changes": [
         {
           "action": "add",
-          "name": "Search Result Ranking Module",
+          "name": "Diversity and Redundancy Management",
           "detail": "새 계약 추가"
         },
         {
           "action": "add",
-          "name": "Duplicate Removal Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "RRF Fusion Re-ranking Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Diversity Enhancement Module",
+          "name": "RRF Fusion and Re-ranking",
           "detail": "새 계약 추가"
         }
       ]
@@ -191,27 +116,7 @@
       "changes": [
         {
           "action": "add",
-          "name": "Query Handling Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Parallel Processing Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Error Handling and Recovery Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Mode Switching Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "State Management Module",
+          "name": "Evaluation Harness Setup",
           "detail": "새 계약 추가"
         }
       ]
@@ -222,32 +127,7 @@
       "changes": [
         {
           "action": "add",
-          "name": "Query Understanding Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Contextual Data Retrieval Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Semantic Data Processing Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Intelligent Data Integration Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Adaptive Security Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Dynamic Scalability Module",
+          "name": "Latency and Reliability Evaluation",
           "detail": "새 계약 추가"
         }
       ]
@@ -255,37 +135,53 @@
     {
       "iteration": 5,
       "agent": "Logger",
+      "changes": []
+    },
+    {
+      "iteration": 6,
+      "agent": "Retriever",
       "changes": [
         {
           "action": "add",
-          "name": "Execution Logging Module",
+          "name": "MMR Diversity Re-ranking",
           "detail": "새 계약 추가"
         },
         {
           "action": "add",
-          "name": "Contract Evolution Tracking Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Traceability Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "Error Logging Module",
-          "detail": "새 계약 추가"
-        },
-        {
-          "action": "add",
-          "name": "User Interaction Logging Module",
+          "name": "Provenance Tracking",
           "detail": "새 계약 추가"
         }
       ]
+    },
+    {
+      "iteration": 7,
+      "agent": "Ranker",
+      "changes": []
+    },
+    {
+      "iteration": 8,
+      "agent": "Orchestrator",
+      "changes": [
+        {
+          "action": "add",
+          "name": "Provenance and Diversity Enhanced Retrieval",
+          "detail": "새 계약 추가"
+        }
+      ]
+    },
+    {
+      "iteration": 9,
+      "agent": "Evaluator",
+      "changes": []
+    },
+    {
+      "iteration": 10,
+      "agent": "Logger",
+      "changes": []
     }
   ],
   "conflicts": [],
   "invariant_issues": [],
-  "baseline_contract_count": 8,
-  "final_contract_count": 36
+  "baseline_contract_count": 3,
+  "final_contract_count": 14
 }

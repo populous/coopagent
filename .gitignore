@@ -15,3 +15,6 @@ build-*/
 
 # API 키 등 비밀 정보
 .env
+
+# 실행 시 갱신되는 상태 파일 (git 에 커밋하지 않음)
+docs/rag_state.json
