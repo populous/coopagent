@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "documentation-agent"
-version = "0.1.0"
+version = "0.1.1"
 description = "Persona-based interview to requirements/workflow spec agent"
 authors = ["YoungGee Kim <you@example.com>"]
 packages = [{ include = "documentation_agent", from = "src" }, { include = "agents", from = "src" }, { include = "rag", from = "src" }]

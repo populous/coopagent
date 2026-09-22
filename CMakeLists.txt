@@ -12,7 +12,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project(documentation-agent VERSION 0.1.0 LANGUAGES NONE)
+project(documentation-agent VERSION 0.1.1 LANGUAGES NONE)
 
 # --- Python 인터프리터 (pytest 실행용) ---
 # 활성화된 가상환경(.venv)이 있으면 그 인터프리터를 우선 사용한다.

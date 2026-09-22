@@ -15,7 +15,7 @@ def test_initialize_returns_server_info():
     assert resp["id"] == 1
     info = resp["result"]["serverInfo"]
     assert info["name"] == "coopagent"
-    assert info["version"] == "0.1.0"
+    assert info["version"] == "0.1.1"
 
 
 def test_ping_returns_empty_result():
