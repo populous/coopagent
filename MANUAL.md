@@ -6,6 +6,8 @@ coopagent 는 LangGraph 기반의 **페르소나-인터뷰 요구사항 생성 �
 
 이 문서는 설치부터 실행·테스트·구조·트러블슈팅까지 사용자 관점에서 전부 기록한 매뉴얼이다.
 
+> GitHub Codespaces(Linux) 에서 실행하는 단계별 안내는 **[CODESPACES.md](CODESPACES.md)** 참고.
+
 ---
 
 ## 1. 요구 사항

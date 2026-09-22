@@ -1,0 +1,16 @@
+{
+  "name": "coopagent",
+  "image": "mcr.microsoft.com/devcontainers/python:3.13",
+  "postCreateCommand": "python3 -m venv .venv && . .venv/bin/activate && python -m pip install --upgrade pip && python -m pip install -r requirements.txt -r requirements-dev.txt",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": ".venv/bin/python"
+      },
+      "extensions": [
+        "ms-python.python",
+        "bierner.markdown-mermaid"
+      ]
+    }
+  }
+}
