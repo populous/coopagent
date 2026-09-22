@@ -1,5 +1,0 @@
-C:/Users/김영기/.openclaw/workspace/projects/coopagent/build-ci/CMakeFiles/PACKAGE.dir
-C:/Users/김영기/.openclaw/workspace/projects/coopagent/build-ci/CMakeFiles/RUN_TESTS.dir
-C:/Users/김영기/.openclaw/workspace/projects/coopagent/build-ci/CMakeFiles/INSTALL.dir
-C:/Users/김영기/.openclaw/workspace/projects/coopagent/build-ci/CMakeFiles/ALL_BUILD.dir
-C:/Users/김영기/.openclaw/workspace/projects/coopagent/build-ci/CMakeFiles/ZERO_CHECK.dir
