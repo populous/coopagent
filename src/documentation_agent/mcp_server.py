@@ -43,7 +43,7 @@ from documentation_agent.rag_proposal import (  # noqa: E402
 from documentation_agent.workflow import DocumentationAgent  # noqa: E402
 
 SERVER_NAME = "coopagent"
-SERVER_VERSION = "0.1.1"
+SERVER_VERSION = "0.2.0"
 DEFAULT_PROTOCOL = "2025-06-18"
 SUPPORTED_PROTOCOLS = {"2024-11-05", "2025-03-26", "2025-06-18"}
 
