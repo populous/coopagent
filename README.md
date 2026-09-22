@@ -5,6 +5,7 @@ LangGraph 기반의 페르소나-인터뷰 요구사항 생성 에이전트. 자
 제안·비판·진화시켜 RAG 등 시스템의 워크플로 명세를 만들어낸다.
 
 > 자세한 내용은 **[MANUAL.md](MANUAL.md)** (사용 매뉴얼) 참고.
+> LangGraph 학습 튜토리얼은 **[docs/LANGGRAPH_TUTORIAL.md](docs/LANGGRAPH_TUTORIAL.md)** 참고.
 > GitHub Codespaces 에서 실행하려면 **[CODESPACES.md](CODESPACES.md)** 참고.
 > Cline/OpenCode 에 MCP 서버로 등록하려면 **[MCP_REGISTRATION.md](MCP_REGISTRATION.md)** 참고.
 
