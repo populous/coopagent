@@ -142,7 +142,68 @@ coopagent/
 
 ---
 
-## 6. 생성 산출물 (`docs/`)
+## 6. RAG 특화 실행 코드 (`src/rag/`)
+
+`propose_rag_contracts` 가 제안한 계약 중, 외부 서비스 없이 결정론적으로 구현할 수
+있는 것들을 실제 파이썬 코드로 구현했다. 임베딩 재호출 없이 순수 계산만 한다.
+
+### 6.1 검색 품질 평가 (`rag/evaluator.py`)
+
+`RankingQualityEvaluator` 계약 구현체. recall@k·MRR·지연시간을 계산한다.
+
+```python
+from rag.evaluator import recall_at_k, mrr, latency_ms
+
+recall_at_k(["a", "b"], ["a", "c", "d"], k=2)  # 0.5 (a 만 정답)
+mrr(["a"], ["b", "a"])                          # 0.5 (2등에서 첫 정답)
+latency_ms(1.5)                                 # 1500.0
+```
+
+| 함수 | 설명 |
+|---|---|
+| `recall_at_k(gt, retrieved, k)` | ground_truth 중 상위 k 에 포함된 비율 |
+| `mrr(gt, retrieved)` | 첫 정답의 역순위 (없으면 0.0) |
+| `latency_ms(seconds)` | 초 → 밀리초 환산 |
+
+### 6.2 다양성 재랭킹·중복 제거 (`rag/reranker.py`)
+
+`HybridRetrievalEnhancer` 계약 구현체. MMR 로 다양성을 보장하고 Jaccard 로 근접
+중복을 제거한다.
+
+```python
+from rag.reranker import mmr_rerank, deduplicate
+
+mmr_rerank(["doc a", "doc b", "doc c"], top_k=2)             # 관련성·다양성 절충 재정렬
+deduplicate(["foo bar", "foo bar baz", "unrelated"], 0.6)    # 근접 중복 제거
+```
+
+| 함수 | 설명 |
+|---|---|
+| `mmr_rerank(hits, top_k, lambda_)` | Maximal Marginal Relevance 재랭킹 (lambda_ 가 클수록 관련성 우선) |
+| `deduplicate(hits, threshold)` | Jaccard 유사도가 threshold 이상인 근접 중복 제거 |
+
+### 6.3 출처 추적 (`rag/provenance.py`)
+
+`Logger` 계약 구현체. 검색 결과에 출처 메타데이터를 부착하고 중복 출처를 정리한다.
+
+```python
+from rag.provenance import attach_provenance, unique_sources
+
+attach_provenance([{"text": "hi"}], source="doc.md")          # source/chunk_index 부착
+unique_sources([{"source": "a.md"}, {"source": "a.md"}])      # ["a.md"]
+```
+
+| 함수 | 설명 |
+|---|---|
+| `attach_provenance(hits, source)` | 각 hit 에 출처·청크 인덱스 부착 |
+| `unique_sources(hits)` | 중복 없이 출처 목록 반환 |
+
+> 이 모듈들은 모두 외부 서비스(Ollama/OpenAI) 없이 결정론적으로 동작하며,
+> `test/test_rag.py` 로 검증된다.
+
+---
+
+## 7. 생성 산출물 (`docs/`)
 
 | 파일 | 내용 |
 |---|---|
@@ -154,7 +215,7 @@ coopagent/
 
 ---
 
-## 7. 테스트
+## 8. 테스트
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest test -q                    # pytest (50 tests)
@@ -187,7 +248,7 @@ ctest --preset ci
 
 ---
 
-## 8. 트러블슈팅
+## 9. 트러블슈팅
 
 | 증상 | 원인/해결 |
 |---|---|
@@ -199,7 +260,7 @@ ctest --preset ci
 
 ---
 
-## 9. 보안 참고
+## 10. 보안 참고
 
 - `.env` 는 `.gitignore` 에 등록되어 git 에 커밋되지 않는다.
 - API 키는 코드에 하드코딩하지 않고 `load_dotenv()` 로만 읽는다.
@@ -207,7 +268,7 @@ ctest --preset ci
 
 ---
 
-## 10. MCP 서버로 노출 (OpenCode/Cline 연동)
+## 11. MCP 서버로 노출 (OpenCode/Cline 연동)
 
 coopagent 를 OpenCode/Cline 의 TUI 에서 직접 호출할 수 있도록 MCP 서버를 제공한다.
 서버는 stdio 기반 JSON-RPC 로, 도구 4개를 노출한다.
