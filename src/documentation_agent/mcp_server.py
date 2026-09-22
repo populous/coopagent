@@ -33,7 +33,12 @@ load_dotenv(PROJECT_DIR / ".env")
 
 from langchain_openai import ChatOpenAI  # noqa: E402
 
-from documentation_agent.rag_proposal import run_proposal, write_artifacts  # noqa: E402
+from documentation_agent.rag_proposal import (  # noqa: E402
+    load_state,
+    run_proposal,
+    save_state,
+    write_artifacts,
+)
 from documentation_agent.workflow import DocumentationAgent  # noqa: E402
 
 SERVER_NAME = "coopagent"
@@ -87,6 +92,11 @@ TOOLS: list[dict[str, Any]] = [
                     "type": "string",
                     "description": "결과 저장 디렉터리 (기본 docs)",
                     "default": "docs",
+                },
+                "fresh": {
+                    "type": "boolean",
+                    "description": "이전 기록(상태)을 무시하고 새로 시작 (기본 false)",
+                    "default": False,
                 },
             },
             "required": ["task"],
@@ -167,11 +177,16 @@ def tool_propose_rag_contracts(args: dict) -> dict:
         return text_content("오류: task 인자가 필요합니다.")
     k = max(1, int(args.get("k", 5) or 5))
     out = str(args.get("out") or "docs")
+    fresh = bool(args.get("fresh", False))
 
     try:
         llm = _make_llm()
-        result = run_proposal(task, llm, k=k)
-        write_artifacts(result, PROJECT_DIR / out)
+        out_dir = PROJECT_DIR / out
+        existing_contracts, prior_log = (None, None) if fresh else load_state(out_dir)
+        result = run_proposal(task, llm, k=k,
+                              existing_contracts=existing_contracts, prior_log=prior_log)
+        write_artifacts(result, out_dir)
+        save_state(result, out_dir)
     except Exception as exc:  # noqa: BLE001
         log(traceback.format_exc())
         return text_content(f"계약 제안 생성 실패: {exc}")

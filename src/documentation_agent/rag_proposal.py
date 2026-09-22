@@ -24,6 +24,8 @@ from pydantic import BaseModel, Field
 from .contract_synthesis import ContractSynthesizer
 from .contracts import InterfaceContract
 from .evolution import (
+    ContractChange,
+    EvolutionEntry,
     EvolutionLog,
     detect_conflicts,
     diff_contracts,
@@ -68,8 +70,17 @@ class RagProposalResult(BaseModel):
     yaml: str = ""
 
 
-def run_proposal(user_request: str, llm: ChatOpenAI, k: int = 5) -> RagProposalResult:
-    """coopagent 파이프라인을 실제로 실행해 RAG 계약 제안을 만든다."""
+def run_proposal(
+    user_request: str,
+    llm: ChatOpenAI,
+    k: int = 5,
+    existing_contracts: List[InterfaceContract] | None = None,
+    prior_log: EvolutionLog | None = None,
+) -> RagProposalResult:
+    """coopagent 파이프라인을 실제로 실행해 RAG 계약 제안을 만든다.
+
+    existing_contracts/prior_log 를 주면 이전 상태(기록)에서 이어서 진화한다.
+    """
     # 1) 페르소나 인터뷰 -> 요구사항 문서 + 인터뷰 결과
     doc_agent = DocumentationAgent(llm=llm, k=k)
     final_state = doc_agent.run_full(user_request)
@@ -80,12 +91,14 @@ def run_proposal(user_request: str, llm: ChatOpenAI, k: int = 5) -> RagProposalR
     synthesizer = ContractSynthesizer(llm=llm)
     baseline = synthesizer.run(user_request, interviews)
 
-    # 3) 역할 에이전트 제안/비판 루프 (각 에이전트가 1회씩 반복)
-    working = list(baseline)
-    evolution_log = EvolutionLog()
+    # 3) 작업 세트: 이전 계약이 있으면 그것을, 없으면 baseline 을 사용
+    working = list(existing_contracts) if existing_contracts is not None else list(baseline)
+    evolution_log = prior_log if prior_log is not None else EvolutionLog()
     critiques: dict = {}
+    start_iteration = len(evolution_log.entries)
 
-    for iteration, agent in enumerate(build_agents(llm), start=1):
+    for offset, agent in enumerate(build_agents(llm)):
+        iteration = start_iteration + offset + 1
         context = AgentContext(
             user_request=user_request,
             interviews=interviews,
@@ -144,6 +157,42 @@ def write_artifacts(result: RagProposalResult, out_dir: Path) -> None:
     )
 
 
+STATE_FILE = "rag_state.json"
+
+
+def save_state(result: RagProposalResult, out_dir: Path) -> Path:
+    """최종 계약과 진화 로그를 상태 파일로 저장해 다음 호출의 입력으로 재사용한다."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "contracts": [c.model_dump() for c in result.final_contracts],
+        "evolution_log": result.evolution_log.to_dicts(),
+    }
+    path = out_dir / STATE_FILE
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return path
+
+
+def load_state(out_dir: Path) -> tuple[List[InterfaceContract] | None, EvolutionLog | None]:
+    """상태 파일에서 이전 계약/진화 로그를 읽는다. 없으면 (None, None)."""
+    path = out_dir / STATE_FILE
+    if not path.is_file():
+        return None, None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None, None
+    contracts = [InterfaceContract(**c) for c in data.get("contracts", [])]
+    entries = [
+        EvolutionEntry(
+            iteration=e["iteration"],
+            agent=e.get("agent", ""),
+            changes=[ContractChange(**c) for c in e.get("changes", [])],
+        )
+        for e in data.get("evolution_log", [])
+    ]
+    return contracts, EvolutionLog(entries=entries)
+
+
 def main(argv: List[str] | None = None) -> int:
     load_dotenv()
     parser = argparse.ArgumentParser(
@@ -154,6 +203,8 @@ def main(argv: List[str] | None = None) -> int:
     parser.add_argument("--k", type=int, default=5, help="생성할 페르소나 수")
     parser.add_argument("--out", type=str, default="docs",
                         help="결과 저장 디렉터리 (기본 docs)")
+    parser.add_argument("--fresh", action="store_true",
+                        help="이전 기록(상태)을 무시하고 새로 시작")
     args = parser.parse_args(argv)
     task = args.task
     if not task:
@@ -161,10 +212,18 @@ def main(argv: List[str] | None = None) -> int:
     if not task:
         parser.error("--task 값 또는 대화형 입력이 필요합니다.")
 
-    llm = ChatOpenAI(model="gpt-4o", temperature=0.0)
-    result = run_proposal(task, llm, k=args.k)
+    out_dir = Path(args.out)
+    existing_contracts = None
+    prior_log = None
+    if not args.fresh:
+        existing_contracts, prior_log = load_state(out_dir)
 
-    write_artifacts(result, Path(args.out))
+    llm = ChatOpenAI(model="gpt-4o", temperature=0.0)
+    result = run_proposal(task, llm, k=args.k,
+                          existing_contracts=existing_contracts, prior_log=prior_log)
+
+    write_artifacts(result, out_dir)
+    save_state(result, out_dir)
 
     print("=== 최종 계약 (YAML) ===")
     print(result.yaml)

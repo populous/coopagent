@@ -227,3 +227,10 @@ coopagent 를 OpenCode/Cline 의 TUI 에서 직접 호출할 수 있도록 MCP �
 > 주의: `generate_requirements`/`propose_rag_contracts` 는 실제 OpenAI 과금이 발생하고
 > 수 분이 걸릴 수 있다. `propose_rag_contracts` 는 파일 쓰기 도구이므로
 > autoApprove(OpenCode 의 permission allow) 목록에 넣지 말 것.
+
+### 기록 유지(상태 연속성)
+
+`propose_rag_contracts` 는 실행 후 최종 계약·진화 로그를 `docs/rag_state.json` 에
+저장하고, 다음 호출 시 이를 `existing_contracts` 로 재사용해 계약을 **점진적으로
+진화**시킨다. 진화 로그도 이어서 누적된다. 처음부터 다시 시작하려면 MCP 에서
+`fresh=true`, CLI 에서 `--fresh` 를 쓴다.
