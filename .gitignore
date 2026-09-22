@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+dist/
+
+# 가상환경
+.venv/
+.venv-*/
+
+# CMake 빌드 산출물
+build/
+
+# API 키 등 비밀 정보
+.env

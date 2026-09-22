@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "documentation-agent"
+version = "0.1.0"
+description = "Persona-based interview to requirements/workflow spec agent"
+authors = ["YoungGee Kim <you@example.com>"]
+packages = [{ include = "documentation_agent", from = "src" }, { include = "agents", from = "src" }, { include = "rag", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain-openai = "*"
+langgraph = "*"
+pydantic = "*"
+python-dotenv = "*"
+PyYAML = "*"
+
+[tool.poetry.scripts]
+documentagent = "documentation_agent.cli:main"
+ragproposal = "documentation_agent.rag_proposal:main"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = ["src"]
