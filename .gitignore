@@ -20,3 +20,4 @@ build-*/
 docs/rag_state.json
 docs/versions/
 docs/demo_spec/
+example/output/
