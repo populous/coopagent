@@ -155,6 +155,26 @@ cmake --build build --target package --config Release            # CPack 패키�
 
 > Windows + Visual Studio 멀티컨피그 생성기에서는 `ctest`/`package` 에 `-C Release`(또는 `Debug`) 를 붙여야 한다.
 
+### CMake 프리셋 (`CMakePresets.json`)
+
+프리셋으로 위 절차를 간소화할 수 있다:
+
+```powershell
+cmake --list-presets           # 프리셋 목록 확인
+cmake --preset default         # 구성 (build/ 에 .venv Python 사용)
+cmake --build --preset default # 빌드
+ctest --preset default         # 테스트
+cpack --preset default         # 패키징 (ZIP/TGZ)
+
+cmake --preset ci              # CI 프리셋 (build-ci/ 사용)
+ctest --preset ci
+```
+
+| 프리셋 | 용도 |
+|---|---|
+| `default` | 일반 개발 (VS 18 2026 x64, `build/`) |
+| `ci` | 비대화형 CI (별도 `build-ci/`, 실패 시 즉시 중단) |
+
 ---
 
 ## 8. 트러블슈팅

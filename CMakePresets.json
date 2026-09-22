@@ -1,0 +1,75 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default (Visual Studio 18 2026, x64)",
+      "description": "멀티컨피그 + pytest/CTest + CPack. 프로젝트 .venv 의 Python 을 사용한다.",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "Python_EXECUTABLE": "${sourceDir}/.venv/Scripts/python.exe"
+      }
+    },
+    {
+      "name": "ci",
+      "inherits": "default",
+      "displayName": "CI (non-interactive, fresh build dir)",
+      "description": "비대화형 CI 용. build-ci 디렉터리를 사용한다.",
+      "binaryDir": "${sourceDir}/build-ci"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "configuration": "Release"
+    },
+    {
+      "name": "ci",
+      "configurePreset": "ci",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": false
+      }
+    },
+    {
+      "name": "ci",
+      "inherits": "default",
+      "configurePreset": "ci",
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "configurations": ["Release"]
+    },
+    {
+      "name": "ci",
+      "configurePreset": "ci",
+      "configurations": ["Release"]
+    }
+  ]
+}
